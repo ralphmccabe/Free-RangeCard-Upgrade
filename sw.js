@@ -1,9 +1,10 @@
-const CACHE_NAME = 'range-card-v36-restore-environment';
+const CACHE_NAME = 'apex-free-v2-idb';
 const ASSETS = [
     './',
     './index.html',
     './style.css',
     './original_script.js',
+    './idb_helper.js',
     './manifest.json',
     './icon-512.png',
     './icon-192.png',
@@ -12,7 +13,8 @@ const ASSETS = [
     './tailwind.min.js',
     './lucide.min.js',
     './html2canvas.min.js',
-    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap'
+    './leaflet.js',
+    './leaflet.css'
 ];
 
 self.addEventListener('install', (event) => {
