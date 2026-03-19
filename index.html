@@ -14,15 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap"
         rel="stylesheet">
     <script src="html2canvas.min.js"></script>
-    <script src="idb_helper.js"></script>
-    <script>
-        console.log('[SYS] Integrated Startup v1.0 IDB STABLE (FREE)...');
-        if (typeof TRC_IDB !== 'undefined') {
-            console.log('[IDB] Helper script detected.');
-        } else {
-            console.error('[IDB] Helper script MISSING or failed to load.');
-        }
-    </script>
+    <script src="lucide.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         :root {
@@ -96,17 +88,8 @@
         }
 
         /* Ensure header note specifically is also raised */
-        /* Accessibility: Visually hidden but screen reader accessible */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
+        #card-container #display-header-notes {
+            transform: translateY(-4px);
         }
     </style>
 </head>
@@ -142,7 +125,7 @@
 
                 <!-- Profile Manager -->
                 <div class="space-y-4">
-                    <h3 class="section-label">Data Management</h3>
+                    <label class="section-label">Data Management</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button id="openLibraryBtn"
                             class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 transition-all">
@@ -173,157 +156,98 @@
 
                 <!-- Session Info Form -->
                 <section class="space-y-4">
-                    <h3 class="section-label">Session Info</h3>
+                    <label class="section-label">Session Info</label>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2">
-                            <label for="header-notes" class="sr-only">Header Notes</label>
-                            <input type="text" id="header-notes" class="input-field" placeholder="Header Notes">
+                        <div class="col-span-2"><input type="text" id="header-notes" class="input-field"
+                                placeholder="Header Notes"></div>
+                        <div class="col-span-2"><input type="text" id="shooter-name" class="input-field"
+                                placeholder="Shooter Name / Company"></div>
+                        <div class="col-span-1"><input type="date" id="date" class="input-field" placeholder="Date">
                         </div>
-                        <div class="col-span-2">
-                            <label for="shooter-name" class="sr-only">Shooter Name</label>
-                            <input type="text" id="shooter-name" class="input-field"
-                                placeholder="Shooter Name / Company">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="date" class="sr-only">Date</label>
-                            <input type="date" id="date" class="input-field" placeholder="Date">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="time" class="sr-only">Time</label>
-                            <input type="time" id="time" class="input-field" placeholder="Time">
+                        <div class="col-span-1"><input type="time" id="time" class="input-field" placeholder="Time">
                         </div>
                     </div>
 
-                    <h3 class="section-label">Reload Data</h3>
+                    <label class="section-label">Reload Data</label>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-1">
-                            <label for="caliber" class="sr-only">Caliber</label>
-                            <input type="text" id="caliber" class="input-field" placeholder="Caliber">
+                        <div class="col-span-1"><input type="text" id="caliber" class="input-field"
+                                placeholder="Caliber"></div>
+                        <div class="col-span-1"><input type="text" id="zero" class="input-field" placeholder="Zero">
                         </div>
-                        <div class="col-span-1">
-                            <label for="zero" class="sr-only">Zero</label>
-                            <input type="text" id="zero" class="input-field" placeholder="Zero">
+                        <div class="col-span-1"><input type="text" id="barrel" class="input-field" placeholder="Barrel">
                         </div>
-                        <div class="col-span-1">
-                            <label for="barrel" class="sr-only">Barrel</label>
-                            <input type="text" id="barrel" class="input-field" placeholder="Barrel">
+                        <div class="col-span-1"><input type="text" id="bullet" class="input-field" placeholder="Bullet">
                         </div>
-                        <div class="col-span-1">
-                            <label for="bullet" class="sr-only">Bullet</label>
-                            <input type="text" id="bullet" class="input-field" placeholder="Bullet">
+                        <div class="col-span-1"><input type="text" id="load" class="input-field"
+                                placeholder="Load (gr)"></div>
+                        <div class="col-span-1"><input type="text" id="powder" class="input-field" placeholder="Powder">
                         </div>
-                        <div class="col-span-1">
-                            <label for="load" class="sr-only">Load</label>
-                            <input type="text" id="load" class="input-field" placeholder="Load (gr)">
+                        <div class="col-span-1"><input type="text" id="primer" class="input-field" placeholder="Primer">
                         </div>
-                        <div class="col-span-1">
-                            <label for="powder" class="sr-only">Powder</label>
-                            <input type="text" id="powder" class="input-field" placeholder="Powder">
+                        <div class="col-span-1"><input type="text" id="col" class="input-field" placeholder="C.O.L">
                         </div>
-                        <div class="col-span-1">
-                            <label for="primer" class="sr-only">Primer</label>
-                            <input type="text" id="primer" class="input-field" placeholder="Primer">
+                        <div class="col-span-1"><input type="text" id="rings" class="input-field border-orange-500/30"
+                                placeholder="Rings">
                         </div>
-                        <div class="col-span-1">
-                            <label for="col" class="sr-only">COL</label>
-                            <input type="text" id="col" class="input-field" placeholder="C.O.L">
+                        <div class="col-span-1"><input type="text" id="velocity" class="input-field"
+                                placeholder="Velocity"></div>
+                        <div class="col-span-1"><input type="text" id="g1" class="input-field" placeholder="G-1 / BC">
                         </div>
-                        <div class="col-span-1">
-                            <label for="rings" class="sr-only">Rings</label>
-                            <input type="text" id="rings" class="input-field border-orange-500/30" placeholder="Rings">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="velocity" class="sr-only">Velocity</label>
-                            <input type="text" id="velocity" class="input-field" placeholder="Velocity">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="g1" class="sr-only">G1 BC</label>
-                            <input type="text" id="g1" class="input-field" placeholder="G-1 / BC">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="weather" class="sr-only">Weather</label>
-                            <input type="text" id="weather" class="input-field" placeholder="Environment">
-                        </div>
+                        <div class="col-span-1"><input type="text" id="weather" class="input-field"
+                                placeholder="Environment"></div>
                     </div>
 
-                    <h3 class="section-label">Solution</h3>
+                    <label class="section-label">Solution</label>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-1">
-                            <label for="elevation" class="sr-only">Elevation</label>
-                            <input type="text" id="elevation" class="input-field" placeholder="Elevation">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="hold-data" class="sr-only">Hold</label>
-                            <input type="text" id="hold-data" class="input-field" placeholder="Hold">
-                        </div>
-                        <div class="col-span-2">
-                            <label for="final-dope" class="sr-only">Final DOPE</label>
-                            <input type="text" id="final-dope" class="input-field border-neon-green/50"
-                                placeholder="Final DOPE">
-                        </div>
+                        <div class="col-span-1"><input type="text" id="elevation" class="input-field"
+                                placeholder="Elevation"></div>
+                        <div class="col-span-1"><input type="text" id="hold-data" class="input-field"
+                                placeholder="Hold"></div>
+                        <div class="col-span-2"><input type="text" id="final-dope"
+                                class="input-field border-neon-green/50" placeholder="Final DOPE"></div>
                     </div>
 
-                    <h3 class="section-label">Equipment</h3>
+                    <label class="section-label">Equipment</label>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2">
-                            <label for="rifle-notes" class="sr-only">Rifle Notes</label>
-                            <input type="text" id="rifle-notes" class="input-field" placeholder="Rifle/Pistol">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="scope-notes" class="sr-only">Scope Notes</label>
-                            <input type="text" id="scope-notes" class="input-field" placeholder="Scope Settings">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="lrf-notes" class="sr-only">LRF Notes</label>
-                            <input type="text" id="lrf-notes" class="input-field" placeholder="LRF Notes">
-                        </div>
+                        <div class="col-span-2"><input type="text" id="rifle-notes" class="input-field"
+                                placeholder="Rifle/Pistol"></div>
+                        <div class="col-span-1"><input type="text" id="scope-notes" class="input-field"
+                                placeholder="Scope Settings"></div>
+                        <div class="col-span-1"><input type="text" id="lrf-notes" class="input-field"
+                                placeholder="LRF Notes"></div>
                     </div>
                 </section>
 
                 <!-- Target Data Form -->
                 <section class="space-y-4">
-                    <h3 class="section-label">Target Data</h3>
+                    <label class="section-label">Target Data</label>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-1">
-                            <label for="targetSize" class="sr-only">Target Size</label>
-                            <input type="text" id="targetSize" class="input-field" placeholder="Target Size">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="groupSize" class="sr-only">Group Size</label>
-                            <input type="text" id="groupSize" class="input-field" placeholder="Group Size">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="wind-notes" class="sr-only">Wind Notes</label>
-                            <input type="text" id="wind-notes" class="input-field" placeholder="Wind Notes">
-                        </div>
-                        <div class="col-span-1">
-                            <label for="direction-notes" class="sr-only">Direction Notes</label>
-                            <input type="text" id="direction-notes" class="input-field" placeholder="Direction / LOS">
-                        </div>
+                        <div class="col-span-1"><input type="text" id="targetSize" class="input-field"
+                                placeholder="Target Size"></div>
+                        <div class="col-span-1"><input type="text" id="groupSize" class="input-field"
+                                placeholder="Group Size"></div>
+                        <div class="col-span-1"><input type="text" id="wind-notes" class="input-field"
+                                placeholder="Wind Notes"></div>
+                        <div class="col-span-1"><input type="text" id="direction-notes" class="input-field"
+                                placeholder="Direction / LOS"></div>
                     </div>
 
-                    <h3 class="section-label">Compass / Map</h3>
+                    <label class="section-label">Compass / Map</label>
 
                     <div class="space-y-2">
                         <div class="grid grid-cols-[80px_1fr] gap-2">
-                            <label for="shooting-angle" class="sr-only">T1 Angle</label>
                             <input type="text" id="shooting-angle" class="input-field" placeholder="T1 los-d">
-                            <label for="compass-range" class="sr-only">T1 Range</label>
                             <input type="text" id="compass-range" class="input-field" placeholder="Range / Note">
                         </div>
                         <div class="grid grid-cols-[80px_1fr] gap-2">
-                            <label for="shooting-angle-2" class="sr-only">T2 Angle</label>
                             <input type="text" id="shooting-angle-2" class="input-field" placeholder="T2 los-d">
-                            <label for="compass-range-2" class="sr-only">T2 Range</label>
                             <input type="text" id="compass-range-2" class="input-field" placeholder="Range / Note">
                         </div>
                         <div class="grid grid-cols-[80px_1fr] gap-2">
-                            <label for="shooting-angle-3" class="sr-only">T3 Angle</label>
                             <input type="text" id="shooting-angle-3" class="input-field" placeholder="T3 los-d">
-                            <label for="compass-range-3" class="sr-only">T3 Range</label>
                             <input type="text" id="compass-range-3" class="input-field" placeholder="Range / Note">
                         </div>
                     </div>
@@ -331,9 +255,8 @@
                     <div class="bg-gray-900 border border-gray-800 rounded p-2 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <input type="checkbox" id="pencil-toggle" class="w-4 h-4 accent-neon-green">
-                            <label for="pencil-toggle"
-                                class="text-[10px] font-bold uppercase text-gray-400 cursor-pointer">Pencil
-                                Tool</label>
+                            <span class="text-[10px] font-bold uppercase text-gray-400">Pencil
+                                Tool</span>
                         </div>
                         <div class="flex gap-1">
                             <button id="clear-pencil" class="p-1 hover:text-red-500 rounded"><i data-lucide="trash-2"
@@ -350,11 +273,11 @@
 
                 <!-- Distance Data Section -->
                 <section class="space-y-4">
-                    <div class="section-label group flex items-center gap-2 cursor-pointer"
+                    <label class="section-label group flex items-center gap-2 cursor-pointer"
                         onclick="document.getElementById('distanceForm').classList.toggle('hidden')">
                         <i data-lucide="chevron-down" class="w-4 h-4"></i>
                         Distance Data (100 - 1000)
-                    </div>
+                    </label>
                     <div id="distanceForm" class="hidden space-y-2">
                         <div class="grid grid-cols-3 gap-2 text-[8px] font-bold text-gray-600 uppercase mb-2 px-1">
                             <div>Dist</div>
@@ -363,83 +286,53 @@
                         </div>
                         <div class="space-y-1 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-100" class="sr-only">100m Distance</label>
                                 <input type="text" id="dist-100" class="input-field py-1 text-center" value="100">
-                                <label for="clicks-100" class="sr-only">100m Clicks</label>
                                 <input type="text" id="clicks-100" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-100" class="sr-only">100m UDLR</label>
                                 <input type="text" id="udlr-100" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-200" class="sr-only">200m Distance</label>
                                 <input type="text" id="dist-200" class="input-field py-1 text-center" value="200">
-                                <label for="clicks-200" class="sr-only">200m Clicks</label>
                                 <input type="text" id="clicks-200" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-200" class="sr-only">200m UDLR</label>
                                 <input type="text" id="udlr-200" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-300" class="sr-only">300m Distance</label>
                                 <input type="text" id="dist-300" class="input-field py-1 text-center" value="300">
-                                <label for="clicks-300" class="sr-only">300m Clicks</label>
                                 <input type="text" id="clicks-300" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-300" class="sr-only">300m UDLR</label>
                                 <input type="text" id="udlr-300" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-400" class="sr-only">400m Distance</label>
                                 <input type="text" id="dist-400" class="input-field py-1 text-center" value="400">
-                                <label for="clicks-400" class="sr-only">400m Clicks</label>
                                 <input type="text" id="clicks-400" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-400" class="sr-only">400m UDLR</label>
                                 <input type="text" id="udlr-400" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-500" class="sr-only">500m Distance</label>
                                 <input type="text" id="dist-500" class="input-field py-1 text-center" value="500">
-                                <label for="clicks-500" class="sr-only">500m Clicks</label>
                                 <input type="text" id="clicks-500" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-500" class="sr-only">500m UDLR</label>
                                 <input type="text" id="udlr-500" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-600" class="sr-only">600m Distance</label>
                                 <input type="text" id="dist-600" class="input-field py-1 text-center" value="600">
-                                <label for="clicks-600" class="sr-only">600m Clicks</label>
                                 <input type="text" id="clicks-600" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-600" class="sr-only">600m UDLR</label>
                                 <input type="text" id="udlr-600" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-700" class="sr-only">700m Distance</label>
                                 <input type="text" id="dist-700" class="input-field py-1 text-center" value="700">
-                                <label for="clicks-700" class="sr-only">700m Clicks</label>
                                 <input type="text" id="clicks-700" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-700" class="sr-only">700m UDLR</label>
                                 <input type="text" id="udlr-700" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-800" class="sr-only">800m Distance</label>
                                 <input type="text" id="dist-800" class="input-field py-1 text-center" value="800">
-                                <label for="clicks-800" class="sr-only">800m Clicks</label>
                                 <input type="text" id="clicks-800" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-800" class="sr-only">800m UDLR</label>
                                 <input type="text" id="udlr-800" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-900" class="sr-only">900m Distance</label>
                                 <input type="text" id="dist-900" class="input-field py-1 text-center" value="900">
-                                <label for="clicks-900" class="sr-only">900m Clicks</label>
                                 <input type="text" id="clicks-900" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-900" class="sr-only">900m UDLR</label>
                                 <input type="text" id="udlr-900" class="input-field py-1" placeholder="UDLR">
                             </div>
                             <div class="grid grid-cols-3 gap-2 items-center bg-black/20 p-1 rounded">
-                                <label for="dist-1000" class="sr-only">1000m Distance</label>
                                 <input type="text" id="dist-1000" class="input-field py-1 text-center" value="1000">
-                                <label for="clicks-1000" class="sr-only">1000m Clicks</label>
                                 <input type="text" id="clicks-1000" class="input-field py-1" placeholder="Clicks">
-                                <label for="udlr-1000" class="sr-only">1000m UDLR</label>
                                 <input type="text" id="udlr-1000" class="input-field py-1" placeholder="UDLR">
                             </div>
                         </div>
@@ -448,9 +341,8 @@
 
                 <!-- Calculator -->
                 <section class="bg-gray-900 border border-gray-800 rounded p-4 space-y-2">
-                    <h3 class="section-label flex items-center gap-2"><i data-lucide="calculator"
-                            class="w-3 h-3 text-neon-green"></i> Calculator</h3>
-                    <label for="calc-display" class="sr-only">Calculator Display</label>
+                    <label class="section-label flex items-center gap-2"><i data-lucide="calculator"
+                            class="w-3 h-3 text-neon-green"></i> Calculator</label>
                     <input type="text" id="calc-display"
                         class="w-full bg-black text-right p-3 rounded font-mono text-neon-green text-xl border border-gray-800 mb-2"
                         readonly value="0">
@@ -703,12 +595,6 @@
             <div id="card-scale-wrapper" class="w-full flex justify-center py-8 lg:py-0">
                 <div id="card-container"
                     class="bg-white text-black w-[1000px] aspect-[4/3] shadow-2xl relative p-8 flex flex-col font-mono shrink-0 origin-top lg:origin-center">
-
-                    <!-- NEW: Snapshot Overlay for Anti-Fading logic -->
-                    <div id="cardImageOverlay" class="absolute inset-0 z-[10] hidden pointer-events-none">
-                        <img src="" class="w-full h-full object-fill opacity-100">
-                    </div>
-
                     <!-- Card Header -->
                     <div class="flex justify-between items-end mb-6 border-b-2 border-black pb-2">
                         <div class="flex items-center gap-8">
@@ -1003,16 +889,16 @@
                                     <div class="border-b border-gray-800 pb-2">
                                         <div class="flex justify-between items-end">
                                             <div class="flex-1">
-                                                <div class="text-[10px] text-neon-green font-bold uppercase mb-2 block">
-                                                    Header
-                                                    Information</div>
+                                                <label
+                                                    class="text-[10px] text-neon-green font-bold uppercase mb-2 block">Header
+                                                    Information</label>
                                                 <p id="prevHeaderNotes"
                                                     class="text-sm text-gray-300 italic leading-relaxed">---</p>
                                             </div>
                                             <div class="text-right">
-                                                <div class="text-[9px] text-gray-500 font-bold uppercase block">Shooter
-                                                    /
-                                                    Company</div>
+                                                <label
+                                                    class="text-[9px] text-gray-500 font-bold uppercase block">Shooter /
+                                                    Company</label>
                                                 <p id="prevShooter"
                                                     class="text-xs text-white font-bold uppercase tracking-wider">---
                                                 </p>
@@ -1149,15 +1035,7 @@
     </div>
 
     <script src="original_script.js"></script>
-    <script>
-        console.log('[SYS] Finalizing UI...');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-            console.log('[SYS] Lucide icons initialized.');
-        } else {
-            console.warn('[SYS] Lucide library missing during final sweep.');
-        }
-    </script>
+    <script> lucide.createIcons(); </script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
