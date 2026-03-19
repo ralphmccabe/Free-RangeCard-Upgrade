@@ -40,7 +40,7 @@
     ]
 }*/
 
-{
+/*{
   "id": "com.rangecard.free.v2",
   "name": "Tactical Range Card Free",
   "short_name": "RangeCardFree",
@@ -82,6 +82,48 @@
       "type": "image/jpeg",
       "form_factor": "wide",
       "label": "Desktop view of the Tactical Range Card"
+    }
+  ]
+}*/
+
+{
+  "id": "com.rangecard.free.v2",
+  "name": "Tactical Range Card Free",
+  "short_name": "RangeCardFree",
+  "description": "Tactical Range Card for ballistics and environment logging.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#22c55e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "splash-page.jpg",
+      "sizes": "640x640",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Mobile Range Card"
+    },
+    {
+      "src": "Screenshot_13-2-2026_35249_.jpeg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Desktop Range Card"
     }
   ]
 }
