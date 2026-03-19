@@ -220,47 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // === 0. IndexedDB Initialization & Migration ===
-    async function initSystem() {
-        console.log("------------------------------------------");
-        console.log("[SYS] Integrated Startup v1.0 IDB STABLE (FREE)...");
-        console.log("[SYS] Author: Ralph Mccabe");
-        console.log("------------------------------------------");
+    function getProfiles() { return JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}'); }
 
-        if (window.TRC_IDB) {
-            console.log("[IDB] Initializing Database...");
-            await window.TRC_IDB.init();
-            await window.TRC_IDB.migrateFromLocalStorage();
-            console.log("[IDB] Database Ready.");
-        } else {
-            console.error("[SYS] IDB Helper not detected! Persistence may be limited.");
-        }
-
-        console.log("[SYS] Loading Persistent Data...");
-        updateProfileList();
-        console.log("[SYS] Full Load Complete.");
-    }
-    initSystem();
-
-    async function getProfiles() {
-        if (window.TRC_IDB) return await window.TRC_IDB.getAll('rangeCardProfiles');
-        return JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}');
-    }
-
-    async function updateProfileList() {
-        const ps = await getProfiles();
+    function updateProfileList() {
+        const ps = getProfiles();
         // Update hidden select
-        if (profileSelect) profileSelect.innerHTML = '<option value="">Select a profile...</option>';
+        profileSelect.innerHTML = '<option value="">Select a profile...</option>';
         // Update Library List
         if (libraryList) libraryList.innerHTML = '';
 
         Object.keys(ps).sort().reverse().forEach(name => {
             // Dropdown
-            if (profileSelect) {
-                const opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
-                profileSelect.appendChild(opt);
-            }
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = name;
+            profileSelect.appendChild(opt);
 
             // Library Item
             if (libraryList) {
@@ -281,11 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 libraryList.appendChild(item);
             }
         });
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
     }
 
-    async function previewProfile(name) {
-        const ps = await getProfiles();
+    function previewProfile(name) {
+        const ps = getProfiles();
         const data = ps[name];
         if (!data) return;
 
@@ -373,20 +346,15 @@ document.addEventListener('DOMContentLoaded', () => {
             loadProfile(name);
             closeLibrary();
         };
-        document.getElementById('deleteSelectedBtn').onclick = async () => {
+        document.getElementById('deleteSelectedBtn').onclick = () => {
             if (confirm(`Trash record "${name}"?`)) {
-                if (window.TRC_IDB) {
-                    await window.TRC_IDB.delete('rangeCardProfiles', name);
-                } else {
-                    const ps_new = await getProfiles();
-                    delete ps_new[name];
-                    localStorage.setItem('rangeCardProfiles', JSON.stringify(ps_new));
-                }
+                const ps_new = getProfiles();
+                delete ps_new[name];
+                localStorage.setItem('rangeCardProfiles', JSON.stringify(ps_new));
                 updateProfileList();
                 resetPreview();
             }
         };
-        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function resetPreview() {
@@ -395,15 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emptyState) emptyState.classList.remove('hidden');
     }
 
-    async function loadProfile(name) {
-        const ps = await getProfiles();
+    function loadProfile(name) {
+        const ps = getProfiles();
         const data = ps[name];
         if (!data) return;
-
-        // FREE VERSION ANTI-FADING (Ensure overlay is hidden when loading, though Free might not use it the same way)
-        const overlay = document.getElementById('cardImageOverlay');
-        if (overlay) overlay.classList.add('hidden');
-
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -411,20 +374,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.dispatchEvent(new Event('input'));
             }
         });
-        if (profileSelect) profileSelect.value = name;
+        profileSelect.value = name;
     }
 
     function openLibrary() {
-        if (libraryModal) libraryModal.classList.remove('hidden');
+        libraryModal.classList.remove('hidden');
         updateProfileList();
         resetPreview();
     }
-    function closeLibrary() { if (libraryModal) libraryModal.classList.add('hidden'); }
+    function closeLibrary() { libraryModal.classList.add('hidden'); }
 
-    if (openLibraryBtn) openLibraryBtn.onclick = openLibrary;
-    if (closeLibraryBtn) closeLibraryBtn.onclick = closeLibrary;
+    openLibraryBtn.onclick = openLibrary;
+    closeLibraryBtn.onclick = closeLibrary;
 
-    saveProfileBtn.onclick = async () => {
+    saveProfileBtn.onclick = () => {
         const name = prompt("Enter profile name to save tactical record:");
         if (!name) return;
 
@@ -436,45 +399,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalTransform = container.style.transform;
         const originalScrollY = window.scrollY;
 
-        // 1. Prepare for Capture
+        // PRE-CAPTURE NORMALIZATION
+        // 1. Show panel if hidden
         if (isVisuallyHidden) {
             previewPanel.classList.remove('opacity-0', 'pointer-events-none', 'absolute');
             previewPanel.classList.add('flex');
         }
+        // 2. Reset scaling transform to capture at full resolution
         container.style.transform = 'none';
+        // 3. Scroll to top to ensure coordinate sync
         window.scrollTo(0, 0);
 
+        // EXTRA SAFETY: Disable transitions temporarily to avoid animation interference with html2canvas
         const originalTransition = previewPanel.style.transition;
         previewPanel.style.transition = 'none';
+
+        // INDUSTRIAL FIX: Force fixed capture context
         document.body.classList.add('is-capturing');
 
-        // 2. High Resolution Capture with Anti-Fading Fix
+        // DELAY for layout reflow and animation suppression
         setTimeout(() => {
             html2canvas(container, {
-                scale: 2.5, // Upped to 2.5x to match PRO quality
+                scale: 2,
                 backgroundColor: '#ffffff',
                 useCORS: true,
-                logging: false,
+                logging: true,
                 scrollX: 0,
                 scrollY: 0,
                 windowWidth: 1000,
-                windowHeight: 750,
-                onclone: (clonedDoc) => {
-                    // ANTI-FADING FIX: Hide existing snapshots if overlaying
-                    const overlay = clonedDoc.getElementById('cardImageOverlay');
-                    if (overlay) overlay.style.display = 'none';
-
-                    // FORCED CRISP TEXT
-                    const cloneContainer = clonedDoc.getElementById('card-container');
-                    if (cloneContainer) {
-                        cloneContainer.style.webkitFontSmoothing = 'none';
-                        cloneContainer.style.textRendering = 'optimizeLegibility';
-                    }
-                }
-            }).then(async canvas => {
+                windowHeight: 750
+            }).then(canvas => {
+                // Restore context
                 document.body.classList.remove('is-capturing');
                 previewPanel.style.transition = originalTransition;
 
+                // POST-CAPTURE RESTORATION
                 if (isVisuallyHidden) {
                     previewPanel.classList.add('opacity-0', 'pointer-events-none', 'absolute');
                     previewPanel.classList.remove('flex');
@@ -482,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.style.transform = originalTransform;
                 window.scrollTo(0, originalScrollY);
 
-                const snapshot = canvas.toDataURL("image/jpeg", 0.9); // Switched to JPEG 0.9 for PRO feel
+                const snapshot = canvas.toDataURL("image/png");
                 const data = { snapshot };
 
                 inputs.forEach(id => {
@@ -490,13 +449,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (el) data[id] = el.value;
                 });
 
-                if (window.TRC_IDB) {
-                    await window.TRC_IDB.set('rangeCardProfiles', name, data);
-                } else {
-                    const ps = await getProfiles();
-                    ps[name] = data;
-                    localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
-                }
+                const ps = getProfiles();
+                ps[name] = data;
+                localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
 
                 openLibrary();
                 previewProfile(name);
@@ -507,10 +462,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     previewPanel.classList.add('opacity-0', 'pointer-events-none', 'absolute');
                     previewPanel.classList.remove('flex');
                 }
+                container.style.transform = originalTransform;
+                window.scrollTo(0, originalScrollY);
                 console.error("Capture failure:", err);
-                alert("Record save failed.");
+                alert("Record save failed. Please check log.");
             });
-        }, 300);
+        }, 500); // Increased to 500ms for absolute stability
     };
 
     updateProfileList();
@@ -731,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.scrollTo(0, 0);
 
-        setTimeout(() => {
+       /* setTimeout(() => {
             html2canvas(container, {
                 scale: 2,
                 backgroundColor: '#ffffff',
@@ -740,6 +697,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollY: 0,
                 windowWidth: 1000,
                 windowHeight: 750
+            })*/setTimeout(() => {
+            // FIX: Force Lucide icons to draw before the "camera" clicks
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // NEW CODE STARTS HERE
+            html2canvas(container, {
+                scale: 3,             // Higher resolution for clearer text
+                backgroundColor: '#ffffff',
+                useCORS: true,        // Critical for CDN icons
+                allowTaint: false,    // Security handshake
+                logging: true,        // Prints errors to F12 Console
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: 1000,
+                windowHeight: 750,
+                onclone: (clonedDoc) => {
+                    // This forces the "X" and "Pencil" to be visible in the capture
+                    const icons = clonedDoc.querySelectorAll('[data-lucide]');
+                    icons.forEach(icon => icon.style.visibility = 'visible');
+                }
             }).then(canvas => {
                 // Restore context
                 document.body.classList.remove('is-capturing');
