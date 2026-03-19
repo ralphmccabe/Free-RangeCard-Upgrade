@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <title>Tactical Range Card Free</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png">
@@ -26,10 +29,26 @@
         }
 
         /* AUDIT-SHIELD: Global Contrast Overrides for Accessibility 100 */
-        .text-gray-500 { color: #9ca3af !important; } /* Lightens gray-500 to gray-400 */
-        .text-blue-800 { color: #3b82f6 !important; } /* Brightens blue-800 to blue-400 */
-        .text-gray-600 { color: #d1d5db !important; } /* Brightens sub-labels */
-        .text-gray-400 { color: #d1d5db !important; } /* Extra contrast bump */
+        /*.text-gray-500 { color: #9ca3af !important; } /* Lightens gray-500 to gray-400 */
+        /*.text-blue-800 { color: #3b82f6 !important; } /* Brightens blue-800 to blue-400 */
+       /* .text-gray-600 { color: #d1d5db !important; } /* Brightens sub-labels */
+        /*.text-gray-400 { color: #d1d5db !important; } /* Extra contrast bump */
+
+
+        /* ENDGAME AUDIT-SHIELD: Super-High Contrast for 100 Score */
+
+        .text-gray-500 { color: #d1d5db !important; } /* Gray-300: High visibility */
+
+        .text-gray-400 { color: #e5e7eb !important; } /* Gray-200: Nearly white */
+
+        .text-gray-600 { color: #f3f4f6 !important; } /* Gray-100: For the table headers */
+
+        .text-blue-800 { color: #93c5fd !important; } /* Blue-300: Much brighter blue */
+
+        .text-neon-green { color: #4ade80 !important; } /* High-vis green */
+
+/* Fix for the "Free Version" italic text in the header */
+.italic.text-gray-400 { color: #f9fafb !important; }
 
         .font-handwriting {
             font-family: 'JetBrains Mono', monospace;
@@ -455,7 +474,7 @@
                         </div>
                     </div>
 
-                    <div class="absolute bottom-2 right-4 font-serif italic text-xl tracking-widest opacity-20 uppercase">By: Ralph Mccabe Range Card v1.0</div>
+                    <div class="absolute bottom-2 right-4 font-serif italic text-xl tracking-widest opacity-50 uppercase">By: Ralph Mccabe Range Card v1.0</div>
                 </div>
             </div>
         </main>
