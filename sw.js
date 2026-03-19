@@ -9,7 +9,7 @@ const ASSETS = [
     './icon-192.png',
     './splash-page.jpg',
     './icon-640.jpg',
-    './tailwind.min.js',
+    './tailwind-prod.css',
     './lucide.min.js',
     './html2canvas.min.js',
     './idb_helper.js',

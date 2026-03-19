@@ -9,7 +9,8 @@
     <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#22c55e">
-    <script src="tailwind.min.js"></script>
+    <!--<script src="tailwind.min.js"></script>-->
+    <link rel="stylesheet" href="tailwind-prod.css">
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap"
         rel="stylesheet">
@@ -98,7 +99,7 @@
     class="bg-gray-800 text-gray-100 min-h-screen font-sans selection:bg-neon-green selection:text-black overflow-x-hidden">
 
     <!-- Mobile View Toggle (Floating Action Button) -->
-    <button id="mobileViewToggle"
+    <button id="mobileViewToggle" aria-label="Toggle Mobile View"
         class="lg:hidden fixed bottom-6 right-6 z-[100] bg-neon-green text-black p-4 rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-all">
         <i id="toggleIcon" data-lucide="eye" class="w-6 h-6"></i>
     </button>
@@ -127,22 +128,22 @@
                 <div class="space-y-4">
                     <h3 class="section-label">Data Management</h3>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="openLibraryBtn"
+                        <button id="openLibraryBtn" aria-label="Open Profile Repository"
                             class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="library" class="w-4 h-4 text-neon-green"></i>
                             OPEN LIBRARY
                         </button>
-                        <button id="saveProfileBtnManual"
+                        <button id="saveProfileBtnManual" aria-label="Save Current Profile"
                             class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 transition-all">
                             <i data-lucide="save" class="w-4 h-4 text-blue-400"></i>
                             SAVE CURRENT
                         </button>
-                        <button id="clearFormBtn"
+                        <button id="clearFormBtn" aria-label="Clear All Data"
                             class="col-span-2 bg-red-950/20 hover:bg-red-900/40 border border-red-900/40 hover:border-red-500 rounded p-2 text-xs font-bold text-red-500 hover:text-white flex items-center justify-center gap-2 transition-all mt-1">
                             <i data-lucide="refresh-ccw" class="w-4 h-4"></i>
                             CLEAR ALL DATA
                         </button>
-                        <button id="colorCycleBtn"
+                        <button id="colorCycleBtn" aria-label="Change Color on Screen"
                             class="col-span-2 bg-blue-950/20 hover:bg-blue-900/40 border border-blue-900/40 hover:border-blue-500 rounded p-2 text-xs font-bold text-blue-400 hover:text-white flex items-center justify-center gap-2 transition-all mt-1 uppercase">
                             <i data-lucide="palette" class="w-4 h-4"></i>
                             Change Color on Screen
@@ -259,12 +260,13 @@
                                 Tool</span>
                         </div>
                         <div class="flex gap-1">
-                            <button id="clear-pencil" class="p-1 hover:text-red-500 rounded"><i data-lucide="trash-2"
+                            <button id="clear-pencil" aria-label="Clear Pencil Marks"
+                                class="p-1 hover:text-red-500 rounded"><i data-lucide="trash-2"
                                     class="w-4 h-4"></i></button>
-                            <button id="clear-hold-btn"
+                            <button id="clear-hold-btn" aria-label="Clear Hold"
                                 class="bg-gray-800 text-[8px] px-2 py-1 rounded uppercase font-bold border border-gray-700 hover:bg-gray-700 transition-colors">Clear
                                 Hold</button>
-                            <button id="clear-shot-btn"
+                            <button id="clear-shot-btn" aria-label="Clear Shot"
                                 class="bg-gray-800 text-[8px] px-2 py-1 rounded uppercase font-bold border border-gray-700 hover:bg-gray-700 transition-colors">Clear
                                 Shot</button>
                         </div>
@@ -373,7 +375,7 @@
                 </section>
 
                 <div class="pt-4">
-                    <button id="downloadBtn"
+                    <button id="downloadBtn" aria-label="Download Range Card Image"
                         class="w-full bg-neon-green text-white font-extrabold py-4 rounded-lg hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3">
                         <i data-lucide="download"></i> Download Card Image
                     </button>
@@ -812,7 +814,7 @@
                             Records</span>
                     </div>
                 </div>
-                <button id="closeLibraryBtn" class="p-2 hover:bg-gray-800 rounded-lg group transition-all">
+                <button id="closeLibraryBtn" aria-label="Close Profile Repository" class="p-2 hover:bg-gray-800 rounded-lg group transition-all">
                     <!--<i data-lucide="x" class="w-6 h-6 text-gray-500 group-hover:text-white transition-colors"></i>-->
                     <i data-lucide="x" class="w-6 h-6 text-white group-hover:text-green-400 transition-colors"></i>
                 </button>
@@ -858,9 +860,9 @@
                             </div>
                             <div class="flex items-center gap-4 shrink-0">
                                 <div class="flex bg-black/80 rounded border border-gray-700 p-0.5">
-                                    <button id="viewImageBtn"
+                                    <button id="viewImageBtn" aria-label="View Image"
                                         class="px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-all">Report</button>
-                                    <button id="viewDataBtn"
+                                    <button id="viewDataBtn" aria-label="View Data"
                                         class="px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-all">Data</button>
                                 </div>
                                 <div class="text-right border-l border-gray-800 pl-4">
@@ -1010,7 +1012,7 @@
                         <!-- Footer Actions -->
                         <div id="previewActions"
                             class="p-5 bg-black/80 border-t border-gray-800 flex gap-4 shrink-0 mt-auto">
-                            <button id="loadSelectedBtn"
+                            <button id="loadSelectedBtn" aria-label="Load Selected"
                                 class="flex-1 bg-neon-green text-black font-extrabold py-4 rounded-lg hover:bg-green-400 shadow-[0_4px_15px_rgba(34,197,94,0.3)] transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-3 active:translate-y-0.5">
                                 <i data-lucide="upload-cloud" class="w-5 h-5"></i>
                                 Inject into Main Form
