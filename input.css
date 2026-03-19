@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gray-500: var(--color-gray-400);
+  --color-blue-800: var(--color-blue-400);
+}

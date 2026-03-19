@@ -8,14 +8,15 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="theme-color" content="#22c55e">
+    <!--<meta name="theme-color" content="#22c55e">-->
+    <meta name="description" content="Tactical Range Card: A high-performance ballistic tool for tracking long-range shooting data, environmental conditions, and profile management.">
     <!--<script src="tailwind.min.js"></script>-->
     <link rel="stylesheet" href="tailwind-prod.css">
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap"
         rel="stylesheet">
-    <script src="html2canvas.min.js"></script>
-    <script src="lucide.min.js"></script>
+    <script src="html2canvas.min.js" defer></script>
+    <script src="lucide.min.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <style>
         :root {
@@ -113,9 +114,9 @@
                     class="text-2xl font-bold tracking-tighter text-neon-green uppercase flex items-center gap-2 relative">
                     <i data-lucide="crosshair" class="w-6 h-6 text-neon-green"></i>
                     <span class="text-neon-green">Range Data <span
-                            class="text-gray-500 font-normal text-xs lowercase italic">/ Free version</span></span>
+                            class="text-gray-400 font-normal text-xs lowercase italic">/ Free version</span></span>
                 </h1>
-                <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest flex justify-between items-center">
+                <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest flex justify-between items-center">
                     <span>Ballistics & Environment Log</span>
                     <span id="save-status" class="text-neon-green font-bold text-[8px] animate-pulse"></span>
                 </p>
@@ -402,7 +403,7 @@
                             <!-- Right: Shooter Info -->
                             <div class="flex flex-col items-end pb-1">
                                 <span
-                                    class="text-[8px] font-bold text-gray-500 uppercase tracking-widest leading-none mb-1">Shooter
+                                    class="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Shooter
                                     / Company</span>
                                 <span id="mobile-display-shooter-name"
                                     class="font-handwriting text-blue-800 font-bold text-sm leading-none text-right"></span>
@@ -415,58 +416,58 @@
                         class="bg-white text-black p-4 rounded shadow-lg font-mono text-[10px] font-bold overflow-hidden">
                         <div class="grid grid-cols-[1.4fr_0.8fr_0.8fr] gap-x-2 gap-y-1">
                             <div class="flex flex-col">
-                                <span class="text-[8px] text-gray-500 uppercase">Timestamp</span>
+                                <span class="text-[8px] text-gray-400 uppercase">Timestamp</span>
                                 <div class="flex gap-1 min-h-[1rem]">
                                     <span id="mobile-display-date" class="text-blue-800 font-normal"></span>
                                     <span class="text-gray-400">@</span>
                                     <span id="mobile-display-time" class="text-blue-800 font-normal"></span>
                                 </div>
                             </div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">Zero
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">Zero
                                     Range</span><span id="mobile-display-zero" class="text-blue-800 font-normal"></span>
                             </div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Caliber</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Caliber</span><span
                                     id="mobile-display-caliber" class="text-blue-800 font-normal"></span></div>
 
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Bullet</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Bullet</span><span
                                     id="mobile-display-bullet" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Barrel</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Barrel</span><span
                                     id="mobile-display-barrel" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Powder</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Powder</span><span
                                     id="mobile-display-powder" class="text-blue-800 font-normal"></span></div>
 
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">Load
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">Load
                                     (gr)</span><span id="mobile-display-load" class="text-blue-800 font-normal"></span>
                             </div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">C.O.L</span><span id="mobile-display-col"
+                                    class="text-[8px] text-gray-400 uppercase">C.O.L</span><span id="mobile-display-col"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Primer</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Primer</span><span
                                     id="mobile-display-primer" class="text-blue-800 font-normal"></span></div>
 
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Velocity</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Velocity</span><span
                                     id="mobile-display-velocity" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Target</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Target</span><span
                                     id="mobile-display-targetSize" class="text-blue-800 font-normal"></span></div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">G-1
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">G-1
                                     BC</span><span id="mobile-display-g1" class="text-blue-800 font-normal"></span>
                             </div>
 
                             <div class="flex flex-col col-span-2"><span
-                                    class="text-[8px] text-gray-500 uppercase">Environment</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Environment</span><span
                                     id="mobile-display-weather" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col col-span-1"><span
-                                    class="text-[8px] text-gray-500 uppercase">Rings</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Rings</span><span
                                     id="mobile-display-rings" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col col-span-3"><span
-                                    class="text-[8px] text-gray-500 uppercase">Group</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Group</span><span
                                     id="mobile-display-groupSize" class="text-blue-800 font-normal"></span></div>
                         </div>
                     </div>
@@ -566,7 +567,7 @@
                             <!-- Watermark -->
                             <div
                                 class="absolute bottom-1 right-2 font-serif italic text-[10px] uppercase tracking-widest opacity-30 pointer-events-none pointer-events-none z-0">
-                                Range Card v1.0
+                                By: Ralph Mccabe Range Card v1.0
                             </div>
 
                             <!-- Mobile Compass Details (DIR/ANG) -->
@@ -613,7 +614,7 @@
                         </div>
                         <div class="flex flex-col items-end pb-1">
                             <span
-                                class="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none mb-1">Shooter
+                                class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Shooter
                                 / Company</span>
                             <span id="display-shooter-name"
                                 class="font-handwriting text-blue-800 font-bold text-xl leading-none"></span>
@@ -626,52 +627,52 @@
                         <div
                             class="w-1/2 grid grid-cols-[1.4fr_0.8fr_0.8fr] gap-x-2 gap-y-1 text-[11px] font-bold content-start">
                             <div class="flex flex-col">
-                                <span class="text-[8px] text-gray-500 uppercase">Timestamp</span>
+                                <span class="text-[8px] text-gray-400 uppercase">Timestamp</span>
                                 <div class="flex gap-1 min-h-[1.2rem]">
                                     <span id="display-date" class="text-blue-800 font-normal"></span>
                                     <span class="text-gray-400">@</span>
                                     <span id="display-time" class="text-blue-800 font-normal"></span>
                                 </div>
                             </div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">Zero
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">Zero
                                     Range</span><span id="display-zero" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Caliber</span><span id="display-caliber"
+                                    class="text-[8px] text-gray-400 uppercase">Caliber</span><span id="display-caliber"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Bullet</span><span id="display-bullet"
+                                    class="text-[8px] text-gray-400 uppercase">Bullet</span><span id="display-bullet"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Barrel</span><span id="display-barrel"
+                                    class="text-[8px] text-gray-400 uppercase">Barrel</span><span id="display-barrel"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Powder</span><span id="display-powder"
+                                    class="text-[8px] text-gray-400 uppercase">Powder</span><span id="display-powder"
                                     class="text-blue-800 font-normal"></span></div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">Load
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">Load
                                     (gr)</span><span id="display-load" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">C.O.L</span><span id="display-col"
+                                    class="text-[8px] text-gray-400 uppercase">C.O.L</span><span id="display-col"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Primer</span><span id="display-primer"
+                                    class="text-[8px] text-gray-400 uppercase">Primer</span><span id="display-primer"
                                     class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Velocity</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Velocity</span><span
                                     id="display-velocity" class="text-blue-800 font-normal"></span>
                             </div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Target</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Target</span><span
                                     id="display-targetSize" class="text-blue-800 font-normal"></span>
                             </div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">G-1
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">G-1
                                     BC</span><span id="display-g1" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col col-span-2"><span
-                                    class="text-[8px] text-gray-500 uppercase">Environment</span><span
+                                    class="text-[8px] text-gray-400 uppercase">Environment</span><span
                                     id="display-weather" class="text-blue-800 font-normal"></span></div>
-                            <div class="flex flex-col"><span class="text-[8px] text-gray-500 uppercase">Rings
+                            <div class="flex flex-col"><span class="text-[8px] text-gray-400 uppercase">Rings
                                 </span><span id="display-rings" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span
-                                    class="text-[8px] text-gray-500 uppercase">Group</span><span id="display-groupSize"
+                                    class="text-[8px] text-gray-400 uppercase">Group</span><span id="display-groupSize"
                                     class="text-blue-800 font-normal"></span>
                             </div>
 
@@ -786,7 +787,7 @@
                     </div>
 
                     <div class="absolute bottom-2 right-4 font-serif italic text-xl tracking-widest opacity-20">
-                        RANGE
+                        By: Ralph Mccabe                        RANGE
                         CARD
                         v1.0</div>
                 </div>
@@ -810,12 +811,12 @@
                         <h2 class="text-lg font-bold uppercase tracking-tight leading-none text-white">
                             Profile
                             Repository</h2>
-                        <span class="text-[9px] text-gray-500 font-mono uppercase">Local Storage
+                        <span class="text-[9px] text-gray-400 font-mono uppercase">Local Storage
                             Records</span>
                     </div>
                 </div>
                 <button id="closeLibraryBtn" aria-label="Close Profile Repository" class="p-2 hover:bg-gray-800 rounded-lg group transition-all">
-                    <!--<i data-lucide="x" class="w-6 h-6 text-gray-500 group-hover:text-white transition-colors"></i>-->
+                    <!--<i data-lucide="x" class="w-6 h-6 text-gray-400 group-hover:text-white transition-colors"></i>-->
                     <i data-lucide="x" class="w-6 h-6 text-white group-hover:text-green-400 transition-colors"></i>
                 </button>
             </div>
@@ -839,7 +840,7 @@
                     <!-- Empty State -->
                     <div id="noSelection"
                         class="absolute inset-0 flex flex-col items-center justify-center text-center p-12">
-                        <i data-lucide="layout-template" class="w-16 h-16 text-gray-800 mb-4 stroke-1"></i>
+                        <i data-lucide="layout-template" class="w-16 h-16 text-gray-400 mb-4 stroke-1"></i>
                         <p class="text-gray-600 font-mono text-xs uppercase tracking-[0.3em]">Load a
                             specific record to
                             view details</p>
@@ -866,7 +867,7 @@
                                         class="px-4 py-1.5 text-[10px] font-bold uppercase rounded transition-all">Data</button>
                                 </div>
                                 <div class="text-right border-l border-gray-800 pl-4">
-                                    <p class="text-[8px] text-gray-500 font-bold uppercase">Record Date
+                                    <p class="text-[8px] text-gray-400 font-bold uppercase">Record Date
                                     </p>
                                     <p id="prevDate" class="text-xs text-gray-400 font-mono italic leading-none">---
                                     </p>
@@ -899,7 +900,7 @@
                                                     class="text-sm text-gray-300 italic leading-relaxed">---</p>
                                             </div>
                                             <div class="text-right">
-                                                <div class="text-[9px] text-gray-500 font-bold uppercase block">Shooter
+                                                <div class="text-[9px] text-gray-400 font-bold uppercase block">Shooter
                                                     /
                                                     Company</div>
                                                 <p id="prevShooter"
@@ -911,21 +912,21 @@
 
                                     <div class="grid grid-cols-3 gap-8">
                                         <div class="border-l border-gray-700 pl-3">
-                                            <p class="text-[9px] text-gray-500 uppercase font-bold">
+                                            <p class="text-[9px] text-gray-400 uppercase font-bold">
                                                 Velocity</p>
                                             <p id="prevVel" class="text-xl font-mono text-blue-400 font-bold mt-1">
                                                 ---
                                             </p>
                                         </div>
                                         <div class="border-l border-gray-700 pl-3">
-                                            <p class="text-[9px] text-gray-500 uppercase font-bold">Zero
+                                            <p class="text-[9px] text-gray-400 uppercase font-bold">Zero
                                                 Range</p>
                                             <p id="prevZero" class="text-xl font-mono text-blue-400 font-bold mt-1">
                                                 ---
                                             </p>
                                         </div>
                                         <div class="border-l border-gray-700 pl-3">
-                                            <p class="text-[9px] text-gray-500 uppercase font-bold text-neon-green">
+                                            <p class="text-[9px] text-gray-400 uppercase font-bold text-neon-green">
                                                 Final Dope</p>
                                             <p id="prevFinal" class="text-xl font-mono text-neon-green font-bold mt-1">
                                                 ---</p>
@@ -936,19 +937,19 @@
                                     <div
                                         class="grid grid-cols-3 gap-4 bg-black/40 p-4 rounded-lg border border-gray-800">
                                         <div class="space-y-1">
-                                            <p class="text-[8px] text-gray-500 uppercase font-bold">
+                                            <p class="text-[8px] text-gray-400 uppercase font-bold">
                                                 Timestamp</p>
                                             <p id="prevTime" class="text-xs text-gray-300 font-mono">---
                                             </p>
                                         </div>
                                         <div class="space-y-1">
-                                            <p class="text-[8px] text-gray-500 uppercase font-bold">
+                                            <p class="text-[8px] text-gray-400 uppercase font-bold">
                                                 Elevation Corr.</p>
                                             <p id="prevElev" class="text-xs text-gray-300 font-mono">---
                                             </p>
                                         </div>
                                         <div class="space-y-1">
-                                            <p class="text-[8px] text-gray-500 uppercase font-bold">Hold
+                                            <p class="text-[8px] text-gray-400 uppercase font-bold">Hold
                                                 Over</p>
                                             <p id="prevHold" class="text-xs text-gray-300 font-mono">---
                                             </p>
@@ -983,7 +984,7 @@
                                                 </div>
                                             </div>
                                             <div class="p-2">
-                                                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">
+                                                <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">
                                                     Observations</p>
                                                 <p id="prevRifleNotes" class="text-[11px] text-gray-400 italic">---</p>
                                             </div>
@@ -999,7 +1000,7 @@
                                                 </div>
                                             </div>
                                             <div class="p-2">
-                                                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">
+                                                <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">
                                                     Environment</p>
                                                 <p id="prevWeather" class="text-[11px] text-gray-400 italic">---</p>
                                             </div>
@@ -1017,7 +1018,7 @@
                                 <i data-lucide="upload-cloud" class="w-5 h-5"></i>
                                 Inject into Main Form
                             </button>
-                            <button id="deleteSelectedBtn"
+                            <button id="deleteSelectedBtn" arial-label="Delete Selected"
                                 class="px-8 bg-black hover:bg-red-900 border border-gray-800 hover:border-red-600 text-gray-600 hover:text-white py-4 rounded-lg transition-all text-[11px] font-bold uppercase flex items-center justify-center gap-2 group">
                                 <i data-lucide="trash-2"
                                     class="w-4 h-4 text-gray-700 group-hover:text-white transition-colors"></i>
@@ -1032,7 +1033,7 @@
 
     <!-- Copyright Notice -->
     <div class="text-center py-4 bg-gray-900/50 border-t border-gray-800">
-        <p class="text-[10px] text-gray-500 font-handwriting">
+        <p class="text-[10px] text-gray-400 font-handwriting">
             &copy; 2026 Ralph Mccabe. All Rights Reserved.
         </p>
     </div>

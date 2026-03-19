@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <div class="font-bold text-sm text-gray-200 truncate pr-4 group-hover:text-white">${name}</div>
-                            <div class="text-[9px] text-gray-500 font-mono uppercase mt-1">
+                            <div class="text-[9px] text-gray-400 font-mono uppercase mt-1">
                                 ${ps[name].caliber || 'No Caliber'} • ${ps[name].date || '--'}
                             </div>
                         </div>
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const udlr = data[`udlr-${d}`] || '--';
                 const row = document.createElement('div');
                 row.className = "p-2 bg-black/40 border border-gray-800 rounded flex flex-col items-center";
-                row.innerHTML = `<span class="text-[8px] text-gray-500">${d}Y</span><span class="text-xs text-blue-400 font-bold">${clicks}</span><span class="text-[8px] text-gray-600">${udlr}</span>`;
+                row.innerHTML = `<span class="text-[8px] text-gray-400">${d}Y</span><span class="text-xs text-blue-400 font-bold">${clicks}</span><span class="text-[8px] text-gray-600">${udlr}</span>`;
                 dTable.appendChild(row);
             });
         }
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgView = document.getElementById('snapshotPreview');
 
         const activeClass = "bg-neon-green text-black";
-        const inactiveClass = "text-gray-500 hover:text-white";
+        const inactiveClass = "text-gray-400 hover:text-white";
 
         viewDataBtn.onclick = () => {
             dataView.classList.remove('hidden');
