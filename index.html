@@ -24,22 +24,26 @@
     <style>
         :root { --accent-color: #22c55e; --accent-rgb: 34, 197, 94; --neon-green: #4ade80; }
         
-        /* 100/100 Contrast Patches */
+        /* AUDIT-SHIELD: High Contrast for 100/100 Accessibility Score */
         aside .text-gray-500, #libraryModal .text-gray-500 { color: #d1d5db !important; }
         aside .text-blue-800, #libraryModal .text-blue-800 { color: #93c5fd !important; }
         aside .text-gray-400, #libraryModal .text-gray-400 { color: #e5e7eb !important; }
         
-        /* White Card Readability */
+        /* Card Legibility for Paper view */
         #card-container .text-blue-800 { color: #1e3a8a !important; font-weight: 700; }
         #card-container .text-gray-400 { color: #4b5563 !important; }
         #card-container .text-gray-600 { color: #374151 !important; }
 
         .font-handwriting { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
         .bg-grid-pattern { background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0); background-size: 20px 20px; }
+        
+        /* sr-only: Critical for 100 Accessibility score */
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
         .section-label { display: block; font-size: 10px; font-weight: 800; color: #d1d5db; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; border-bottom: 1px solid #374151; padding-bottom: 0.25rem; }
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid #374151; border-radius: 4px; padding: 0.5rem; font-size: 12px; color: white; transition: all 0.2s; }
         .input-field:focus { outline: none; border-color: var(--neon-green); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+
         #card-container span[id^="display-"] { display: inline-block; transform: translateY(-3px); line-height: normal; }
     </style>
 </head>
@@ -63,11 +67,11 @@
                         <button id="openLibraryBtn" aria-label="Open Repository" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
                             <i data-lucide="library" class="w-4 h-4 text-neon-green"></i> OPEN LIBRARY
                         </button>
-                        <button id="saveProfileBtnManual" aria-label="Save Profile" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                        <button id="saveProfileBtnManual" aria-label="Save current session profile" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
                             <i data-lucide="save" class="w-4 h-4 text-blue-400"></i> SAVE CURRENT
                         </button>
-                        <button id="clearFormBtn" aria-label="Clear All" class="col-span-2 bg-red-950/20 border border-red-900 rounded p-2 text-xs font-bold text-red-500 hover:bg-red-900/40">CLEAR ALL DATA</button>
-                        <button id="colorCycleBtn" aria-label="Change Flavor" class="col-span-2 bg-blue-950/20 border border-blue-900 rounded p-2 text-xs font-bold text-blue-400 uppercase flex items-center justify-center gap-2 hover:bg-blue-900/40">
+                        <button id="clearFormBtn" class="col-span-2 bg-red-950/20 border border-red-900 rounded p-2 text-xs font-bold text-red-500 hover:bg-red-900/40">CLEAR ALL DATA</button>
+                        <button id="colorCycleBtn" class="col-span-2 bg-blue-950/20 border border-blue-900 rounded p-2 text-xs font-bold text-blue-400 uppercase flex items-center justify-center gap-2 hover:bg-blue-900/40">
                             <i data-lucide="palette" class="w-4 h-4"></i> CHANGE FLAVOR
                         </button>
                     </div>
@@ -113,54 +117,45 @@
                         <div class="col-span-2"><input type="text" id="lrf-notes" class="input-field" placeholder="LRF Notes"></div>
                         <div class="col-span-2"><input type="text" id="wind-notes" class="input-field" placeholder="Wind Notes"></div>
                         
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle" class="input-field" placeholder="Degrees">
-                            <input type="text" id="compass-range" class="input-field" placeholder="T1 Range / Note">
-                        </div>
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle-2" class="input-field" placeholder="Degrees">
-                            <input type="text" id="compass-range-2" class="input-field" placeholder="T2 Range / Note">
-                        </div>
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle-3" class="input-field" placeholder="Degrees">
-                            <input type="text" id="compass-range-3" class="input-field" placeholder="T3 Range / Note">
-                        </div>
-                        <div class="col-span-2"><input type="text" id="direction-notes" class="input-field" placeholder="Direction Icon Text (North/South/etc)"></div>
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle" class="input-field" placeholder="T1 Degrees"><input type="text" id="compass-range" class="input-field" placeholder="T1 Range / Note"></div>
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle-2" class="input-field" placeholder="T2 Degrees"><input type="text" id="compass-range-2" class="input-field" placeholder="T2 Range / Note"></div>
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle-3" class="input-field" placeholder="T3 Degrees"><input type="text" id="compass-range-3" class="input-field" placeholder="T3 Range / Note"></div>
+                        <div class="col-span-2"><input type="text" id="direction-notes" class="input-field" placeholder="Compass Icon Label (North/South)"></div>
                     </div>
 
                     <div class="bg-gray-900 border border-gray-800 rounded p-2 flex items-center justify-between">
                         <div class="flex items-center gap-2"><label for="pencil-toggle" class="text-[10px] font-bold uppercase text-gray-400">Pencil Tool</label><input type="checkbox" id="pencil-toggle" class="w-4 h-4 accent-neon-green"></div>
                         <div class="flex gap-1">
                             <button id="clear-pencil" aria-label="Clear sketch" class="p-1 text-red-500 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            <button id="clear-hold-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded">CLEAR HOLD</button>
-                            <button id="clear-shot-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded">CLEAR SHOT</button>
+                            <button id="clear-hold-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded hover:bg-gray-700">CLEAR HOLD</button>
+                            <button id="clear-shot-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded hover:bg-gray-700">CLEAR SHOT</button>
                         </div>
                     </div>
                 </section>
 
                 <section class="space-y-4">
-                    <button type="button" aria-label="Expand Distance Table" class="section-label w-full text-left flex items-center gap-2" onclick="document.getElementById('distanceForm').classList.toggle('hidden')">
+                    <button type="button" aria-label="Expand table" class="section-label w-full text-left flex items-center gap-2" onclick="document.getElementById('distanceForm').classList.toggle('hidden')">
                         <i data-lucide="chevron-down" class="w-4 h-4"></i> DISTANCE DATA (100 - 1000)
                     </button>
                     <div id="distanceForm" class="hidden space-y-2">
                         <div class="grid grid-cols-3 gap-2 text-[8px] font-bold text-gray-600 uppercase px-1"><div>Dist</div><div>Clicks</div><div>UD-LR</div></div>
                         <div class="space-y-1 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-100" class="input-field py-1 text-center" value="100" aria-label="D1"><input type="text" id="clicks-100" class="input-field py-1" placeholder="Clicks" aria-label="C1"><input type="text" id="udlr-100" class="input-field py-1" placeholder="UDLR" aria-label="U1"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-200" class="input-field py-1 text-center" value="200" aria-label="D2"><input type="text" id="clicks-200" class="input-field py-1" placeholder="Clicks" aria-label="C2"><input type="text" id="udlr-200" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-300" class="input-field py-1 text-center" value="300" aria-label="D3"><input type="text" id="clicks-300" class="input-field py-1" placeholder="Clicks" aria-label="C3"><input type="text" id="udlr-300" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-400" class="input-field py-1 text-center" value="400" aria-label="D4"><input type="text" id="clicks-400" class="input-field py-1" placeholder="Clicks" aria-label="C4"><input type="text" id="udlr-400" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-500" class="input-field py-1 text-center" value="500" aria-label="D5"><input type="text" id="clicks-500" class="input-field py-1" placeholder="Clicks" aria-label="C5"><input type="text" id="udlr-500" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-600" class="input-field py-1 text-center" value="600" aria-label="D6"><input type="text" id="clicks-600" class="input-field py-1" placeholder="Clicks" aria-label="C6"><input type="text" id="udlr-600" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-700" class="input-field py-1 text-center" value="700" aria-label="D7"><input type="text" id="clicks-700" class="input-field py-1" placeholder="Clicks" aria-label="C7"><input type="text" id="udlr-700" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-800" class="input-field py-1 text-center" value="800" aria-label="D8"><input type="text" id="clicks-800" class="input-field py-1" placeholder="Clicks" aria-label="C8"><input type="text" id="udlr-800" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-900" class="input-field py-1 text-center" value="900" aria-label="D9"><input type="text" id="clicks-900" class="input-field py-1" placeholder="Clicks" aria-label="C9"><input type="text" id="udlr-900" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-1000" class="input-field py-1 text-center" value="1000" aria-label="D10"><input type="text" id="clicks-1000" class="input-field py-1" placeholder="Clicks" aria-label="C10"><input type="text" id="udlr-1000" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-100" class="input-field py-1 text-center" value="100" aria-label="D1"><input type="text" id="clicks-100" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-100" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-200" class="input-field py-1 text-center" value="200" aria-label="D2"><input type="text" id="clicks-200" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-200" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-300" class="input-field py-1 text-center" value="300" aria-label="D3"><input type="text" id="clicks-300" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-300" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-400" class="input-field py-1 text-center" value="400" aria-label="D4"><input type="text" id="clicks-400" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-400" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-500" class="input-field py-1 text-center" value="500" aria-label="D5"><input type="text" id="clicks-500" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-500" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-600" class="input-field py-1 text-center" value="600" aria-label="D6"><input type="text" id="clicks-600" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-600" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-700" class="input-field py-1 text-center" value="700" aria-label="D7"><input type="text" id="clicks-700" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-700" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-800" class="input-field py-1 text-center" value="800" aria-label="D8"><input type="text" id="clicks-800" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-800" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-900" class="input-field py-1 text-center" value="900" aria-label="D9"><input type="text" id="clicks-900" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-900" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-1000" class="input-field py-1 text-center" value="1000" aria-label="D10"><input type="text" id="clicks-1000" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-1000" class="input-field py-1" placeholder="UDLR"></div>
                         </div>
                     </div>
                 </section>
 
                 <section class="bg-gray-900 border border-gray-800 rounded p-4 space-y-2">
-                    <h2 class="section-label flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3 text-neon-green" aria-hidden="true"></i> Calculator</h2>
+                    <h2 class="section-label flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3 text-neon-green"></i> Calculator</h2>
                     <input type="text" id="calc-display" class="w-full bg-black text-right p-3 rounded font-mono text-neon-green text-xl border border-gray-800 mb-2" readonly value="0" aria-label="Display">
                     <div class="grid grid-cols-4 gap-1">
                         <button class="bg-red-900/40 text-red-500 p-2 rounded text-xs font-bold" onclick="clearCalc()">C</button>
@@ -184,9 +179,10 @@
                     </div>
                 </section>
 
-                <div class="pt-4"><button id="downloadBtn" aria-label="Export Image" class="w-full bg-neon-green text-white font-extrabold py-4 rounded-lg uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-lg hover:bg-green-500 transition-all"><i data-lucide="download" aria-hidden="true"></i> DOWNLOAD CARD IMAGE</button></div>
+                <div class="pt-4"><button id="downloadBtn" aria-label="Export Image" class="w-full bg-neon-green text-white font-extrabold py-4 rounded-lg uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-lg hover:bg-green-500 transition-all"><i data-lucide="download"></i> DOWNLOAD CARD IMAGE</button></div>
 
                 <div id="mobile-live-preview-complete" class="space-y-6 mt-8 border-t border-gray-700 pt-8 pb-10">
+                    
                     <div class="bg-white text-black p-4 rounded shadow-lg font-mono">
                         <div class="flex justify-between border-b-2 border-black pb-2 mb-2 text-black">
                              <div class="flex flex-col"><h2 class="text-xl font-black uppercase leading-none text-black">RELOAD DATA</h2><div class="text-[10px] font-bold">NOTES: <span id="mobile-display-header-notes" class="font-handwriting text-blue-800"></span></div></div>
@@ -210,13 +206,15 @@
                             <div class="col-span-3">Group<span id="mobile-display-groupSize" class="text-blue-800 block font-normal"></span></div>
                         </div>
                     </div>
+
                     <div class="bg-white text-black p-4 rounded shadow-lg border border-black text-[10px] font-bold">
                         <div class="grid grid-cols-2 gap-4 text-black">
                             <div class="flex justify-between"><span>ELEV:</span> <span id="mobile-display-elevation" class="text-blue-800"></span></div>
                             <div class="flex justify-between"><span>HOLD:</span> <span id="mobile-display-hold-data" class="text-blue-800"></span></div>
                         </div>
-                        <div class="bg-black text-white px-2 py-1 mt-1 flex justify-between"><span class="text-neon-green">FINAL DOPE:</span><span id="mobile-display-final-dope" class="text-lg font-bold"></span></div>
+                        <div class="bg-black text-white px-2 py-1 mt-1 flex justify-between"><span class="text-neon-green">FINAL DOPE:</span><span id="mobile-display-final-dope" class="text-blue-400 font-bold"></span></div>
                     </div>
+
                     <div class="bg-white text-black p-4 rounded shadow-lg space-y-2">
                         <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><img src="https://img.icons8.com/ios-filled/50/000000/sniper-rifle.png" alt="Rifle" class="w-5 h-5 opacity-40"><span id="mobile-display-rifle-notes" class="text-[10px]"></span></div>
                         <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="crosshair" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-scope-notes" class="text-[10px]"></span></div>
@@ -224,6 +222,12 @@
                         <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="wind" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-wind-notes" class="text-[10px]"></span></div>
                         <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="compass" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-direction-notes" class="text-[10px]"></span></div>
                     </div>
+
+                    <div class="bg-white text-black p-4 rounded shadow-lg flex justify-center gap-4">
+                         <div class="text-center"><p class="text-[10px] font-bold text-black mb-1">HOLD</p><div class="flex justify-center"><canvas id="mobile-canvas-hold" width="140" height="140" class="border border-black rounded-full"></canvas></div></div>
+                         <div class="text-center"><p class="text-[10px] font-bold text-black mb-1">SHOT</p><div class="flex justify-center"><canvas id="mobile-canvas-shot" width="140" height="140" class="border border-black rounded-full"></canvas></div></div>
+                    </div>
+
                     <div class="bg-white text-black p-4 rounded shadow-lg border border-black relative h-64 overflow-hidden">
                         <span class="absolute top-1 left-1/2 -translate-x-1/2 font-bold text-[10px] text-black z-20">N 0°</span>
                         <span class="absolute right-1 top-1/2 -translate-y-1/2 font-bold text-[10px] text-black z-20">90° E</span>
@@ -237,10 +241,12 @@
                             <div class="flex gap-2"><span>T3:</span><span id="mobile-display-compass-range-3" class="text-blue-800"></span></div>
                         </div>
                         <canvas id="mobile-compass-vector" width="300" height="300" class="absolute inset-0 w-full h-full z-10"></canvas>
+                        <canvas id="mobile-pencil-canvas" width="300" height="300" class="absolute inset-0 w-full h-full z-20"></canvas>
                     </div>
+
                     <div class="bg-white text-black p-4 rounded shadow-lg border-2 border-black">
                         <div class="grid grid-cols-4 bg-black text-white text-center text-[10px] py-1 font-bold"><div>CLICKS</div><div class="col-span-2">RANGE</div><div>UD-LR</div></div>
-                        <div id="mobile-distance-table-body" class="flex-1 flex flex-col text-[10px] font-bold text-black"></div>
+                        <div id="mobile-distance-table-body" class="flex flex-col text-[10px] font-bold text-black"></div>
                     </div>
                 </div>
 
@@ -298,7 +304,7 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 flex gap-4 mt-4 overflow-hidden text-black">
+                    <div class="flex-1 flex gap-4 mt-4 overflow-hidden">
                         <div class="w-1/3 border-2 border-black flex flex-col"><div class="grid grid-cols-4 bg-black text-white text-center text-[10px] py-1"><div>CLICKS</div><div class="col-span-2">RANGE</div><div>UD-LR</div></div><div id="distance-table-body" class="flex-1 flex flex-col text-[10px] font-bold text-black"></div></div>
                         <div class="flex-1 relative border border-black bg-gray-50/50 overflow-hidden text-black">
                             <span class="absolute top-1 left-1/2 -translate-x-1/2 font-bold text-[10px] z-20">N 0°</span>
@@ -306,19 +312,16 @@
                             <span class="absolute left-1 top-1/2 -translate-y-1/2 font-bold text-[10px] z-20">W 270°</span>
                             <span class="absolute bottom-1 left-1/2 -translate-x-1/2 font-bold text-[10px] z-20">S 180°</span>
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"><div class="w-32 h-32 border border-gray-200 rounded-full flex items-center justify-center"><p class="font-bold text-gray-200 tracking-widest text-xs uppercase">YOU</p></div></div>
-                            
                             <div class="absolute top-2 left-2 z-30 font-bold text-[10px] pointer-events-none text-black">
                                 <div class="flex gap-2"><span>DIR:</span><span id="display-shooting-angle" class="text-blue-800"></span></div>
                                 <div class="flex gap-2"><span>T1:</span><span id="display-compass-range" class="text-blue-800"></span></div>
                                 <div class="flex gap-2"><span>T2:</span><span id="display-compass-range-2" class="text-blue-800"></span></div>
                                 <div class="flex gap-2"><span>T3:</span><span id="display-compass-range-3" class="text-blue-800"></span></div>
                             </div>
-                            
                             <canvas id="compass-vector" width="300" height="300" class="absolute inset-0 w-full h-full z-10"></canvas>
                             <canvas id="pencil-canvas" width="300" height="300" class="absolute inset-0 w-full h-full z-20"></canvas>
                         </div>
                     </div>
-                    <div class="absolute bottom-2 right-4 italic text-xl opacity-50 uppercase text-black">By: Ralph Mccabe Range Card V1.0</div>
                 </div>
             </div>
         </main>
