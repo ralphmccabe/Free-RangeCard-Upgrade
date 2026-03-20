@@ -24,21 +24,20 @@
     <style>
         :root { --accent-color: #22c55e; --accent-rgb: 34, 197, 94; --neon-green: #4ade80; }
         
-        /* 100/100 Accessibility Contrast Overrides */
-        aside .text-gray-500, #libraryModal .text-gray-500 { color: #f3f4f6 !important; }
+        /* 100/100 Contrast Patches */
+        aside .text-gray-500, #libraryModal .text-gray-500 { color: #d1d5db !important; }
         aside .text-blue-800, #libraryModal .text-blue-800 { color: #93c5fd !important; }
-        aside .text-gray-400, #libraryModal .text-gray-400 { color: #f9fafb !important; }
+        aside .text-gray-400, #libraryModal .text-gray-400 { color: #e5e7eb !important; }
         
-        /* High-Contrast Card Elements */
+        /* White Card Readability */
         #card-container .text-blue-800 { color: #1e3a8a !important; font-weight: 700; }
         #card-container .text-gray-400 { color: #4b5563 !important; }
         #card-container .text-gray-600 { color: #374151 !important; }
 
         .font-handwriting { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
         .bg-grid-pattern { background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0); background-size: 20px 20px; }
-        
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
-        .section-label { display: block; font-size: 10px; font-weight: 800; color: #f3f4f6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; border-bottom: 1px solid #374151; padding-bottom: 0.25rem; }
+        .section-label { display: block; font-size: 10px; font-weight: 800; color: #d1d5db; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; border-bottom: 1px solid #374151; padding-bottom: 0.25rem; }
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid #374151; border-radius: 4px; padding: 0.5rem; font-size: 12px; color: white; transition: all 0.2s; }
         .input-field:focus { outline: none; border-color: var(--neon-green); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
         #card-container span[id^="display-"] { display: inline-block; transform: translateY(-3px); line-height: normal; }
@@ -51,7 +50,7 @@
         
         <aside class="w-full lg:w-1/3 bg-gray-900 border-r border-gray-700 flex flex-col h-full overflow-y-auto shadow-2xl relative z-10 custom-scrollbar">
             <div class="p-6 border-b border-gray-700 bg-gray-900 z-30 shrink-0">
-                <h1 class="text-2xl font-bold tracking-tighter text-neon-green uppercase flex items-center gap-2">
+                <h1 class="text-2xl font-bold tracking-tighter text-neon-green uppercase flex items-center gap-2 relative">
                     <i data-lucide="crosshair" class="w-6 h-6 text-neon-green"></i>
                     <span>Range Data <span class="text-gray-400 font-normal text-xs lowercase italic">/ Free</span></span>
                 </h1>
@@ -61,10 +60,16 @@
                 <div class="space-y-4">
                     <h2 class="section-label">Data Management</h2>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="openLibraryBtn" aria-label="Open Library" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700"><i data-lucide="library" class="w-4 h-4 text-neon-green"></i> OPEN LIBRARY</button>
-                        <button id="saveProfileBtnManual" aria-label="Save current session" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700"><i data-lucide="save" class="w-4 h-4 text-blue-400"></i> SAVE CURRENT</button>
-                        <button id="clearFormBtn" class="col-span-2 bg-red-950/20 border border-red-900 rounded p-2 text-xs font-bold text-red-500 hover:bg-red-900/40">CLEAR ALL DATA</button>
-                        <button id="colorCycleBtn" class="col-span-2 bg-blue-950/20 border border-blue-900 rounded p-2 text-xs font-bold text-blue-400 uppercase flex items-center justify-center gap-2"><i data-lucide="palette" class="w-4 h-4"></i> CHANGE FLAVOR</button>
+                        <button id="openLibraryBtn" aria-label="Open Repository" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                            <i data-lucide="library" class="w-4 h-4 text-neon-green"></i> OPEN LIBRARY
+                        </button>
+                        <button id="saveProfileBtnManual" aria-label="Save Profile" class="bg-gray-800 border border-gray-600 rounded p-2 text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                            <i data-lucide="save" class="w-4 h-4 text-blue-400"></i> SAVE CURRENT
+                        </button>
+                        <button id="clearFormBtn" aria-label="Clear All" class="col-span-2 bg-red-950/20 border border-red-900 rounded p-2 text-xs font-bold text-red-500 hover:bg-red-900/40">CLEAR ALL DATA</button>
+                        <button id="colorCycleBtn" aria-label="Change Flavor" class="col-span-2 bg-blue-950/20 border border-blue-900 rounded p-2 text-xs font-bold text-blue-400 uppercase flex items-center justify-center gap-2 hover:bg-blue-900/40">
+                            <i data-lucide="palette" class="w-4 h-4"></i> CHANGE FLAVOR
+                        </button>
                     </div>
                 </div>
 
@@ -93,26 +98,40 @@
                         <div class="col-span-1"><input type="text" id="velocity" class="input-field" placeholder="Velocity"></div>
                         <div class="col-span-1"><input type="text" id="g1" class="input-field" placeholder="G-1 / BC"></div>
                         <div class="col-span-1"><input type="text" id="weather" class="input-field" placeholder="Environment"></div>
-                    </div>
-
-                    <h2 class="section-label">Solution & Compass</h2>
-                    <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-1"><input type="text" id="targetSize" class="input-field" placeholder="Target Size"></div>
                         <div class="col-span-1"><input type="text" id="groupSize" class="input-field" placeholder="Group Size"></div>
+                    </div>
+
+                    <h2 class="section-label">Solution & Equipment</h2>
+                    <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-1"><input type="text" id="elevation" class="input-field" placeholder="Elevation"></div>
                         <div class="col-span-1"><input type="text" id="hold-data" class="input-field" placeholder="Hold"></div>
                         <div class="col-span-2"><input type="text" id="final-dope" class="input-field border-neon-green/50" placeholder="Final DOPE"></div>
-                        <div class="col-span-2"><input type="text" id="rifle-notes" class="input-field" placeholder="Rifle/Pistol"></div>
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle" class="input-field" placeholder="T1 los-d"><input type="text" id="compass-range" class="input-field" placeholder="Range / Note"></div>
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle-2" class="input-field" placeholder="T2 los-d"><input type="text" id="compass-range-2" class="input-field" placeholder="Range / Note"></div>
-                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2"><input type="text" id="shooting-angle-3" class="input-field" placeholder="T3 los-d"><input type="text" id="compass-range-3" class="input-field" placeholder="Range / Note"></div>
-                        <div class="col-span-2"><input type="text" id="direction-notes" class="input-field" placeholder="Direction / LOS"></div>
+                        
+                        <div class="col-span-2"><input type="text" id="rifle-notes" class="input-field" placeholder="Rifle / Pistol"></div>
+                        <div class="col-span-2"><input type="text" id="scope-notes" class="input-field" placeholder="Scope Settings"></div>
+                        <div class="col-span-2"><input type="text" id="lrf-notes" class="input-field" placeholder="LRF Notes"></div>
+                        <div class="col-span-2"><input type="text" id="wind-notes" class="input-field" placeholder="Wind Notes"></div>
+                        
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
+                            <input type="text" id="shooting-angle" class="input-field" placeholder="Degrees">
+                            <input type="text" id="compass-range" class="input-field" placeholder="T1 Range / Note">
+                        </div>
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
+                            <input type="text" id="shooting-angle-2" class="input-field" placeholder="Degrees">
+                            <input type="text" id="compass-range-2" class="input-field" placeholder="T2 Range / Note">
+                        </div>
+                        <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
+                            <input type="text" id="shooting-angle-3" class="input-field" placeholder="Degrees">
+                            <input type="text" id="compass-range-3" class="input-field" placeholder="T3 Range / Note">
+                        </div>
+                        <div class="col-span-2"><input type="text" id="direction-notes" class="input-field" placeholder="Direction Icon Text (North/South/etc)"></div>
                     </div>
 
                     <div class="bg-gray-900 border border-gray-800 rounded p-2 flex items-center justify-between">
                         <div class="flex items-center gap-2"><label for="pencil-toggle" class="text-[10px] font-bold uppercase text-gray-400">Pencil Tool</label><input type="checkbox" id="pencil-toggle" class="w-4 h-4 accent-neon-green"></div>
                         <div class="flex gap-1">
-                            <button id="clear-pencil" class="p-1 text-red-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button id="clear-pencil" aria-label="Clear sketch" class="p-1 text-red-500 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             <button id="clear-hold-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded">CLEAR HOLD</button>
                             <button id="clear-shot-btn" class="bg-gray-800 text-[8px] px-2 py-1 rounded">CLEAR SHOT</button>
                         </div>
@@ -120,29 +139,29 @@
                 </section>
 
                 <section class="space-y-4">
-                    <button type="button" class="section-label w-full text-left flex items-center gap-2" onclick="document.getElementById('distanceForm').classList.toggle('hidden')">
+                    <button type="button" aria-label="Expand Distance Table" class="section-label w-full text-left flex items-center gap-2" onclick="document.getElementById('distanceForm').classList.toggle('hidden')">
                         <i data-lucide="chevron-down" class="w-4 h-4"></i> DISTANCE DATA (100 - 1000)
                     </button>
                     <div id="distanceForm" class="hidden space-y-2">
                         <div class="grid grid-cols-3 gap-2 text-[8px] font-bold text-gray-600 uppercase px-1"><div>Dist</div><div>Clicks</div><div>UD-LR</div></div>
                         <div class="space-y-1 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-100" class="input-field py-1 text-center" value="100"><input type="text" id="clicks-100" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-100" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-200" class="input-field py-1 text-center" value="200"><input type="text" id="clicks-200" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-200" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-300" class="input-field py-1 text-center" value="300"><input type="text" id="clicks-300" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-300" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-400" class="input-field py-1 text-center" value="400"><input type="text" id="clicks-400" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-400" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-500" class="input-field py-1 text-center" value="500"><input type="text" id="clicks-500" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-500" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-600" class="input-field py-1 text-center" value="600"><input type="text" id="clicks-600" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-600" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-700" class="input-field py-1 text-center" value="700"><input type="text" id="clicks-700" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-700" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-800" class="input-field py-1 text-center" value="800"><input type="text" id="clicks-800" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-800" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-900" class="input-field py-1 text-center" value="900"><input type="text" id="clicks-900" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-900" class="input-field py-1" placeholder="UDLR"></div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-1000" class="input-field py-1 text-center" value="1000"><input type="text" id="clicks-1000" class="input-field py-1" placeholder="Clicks"><input type="text" id="udlr-1000" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-100" class="input-field py-1 text-center" value="100" aria-label="D1"><input type="text" id="clicks-100" class="input-field py-1" placeholder="Clicks" aria-label="C1"><input type="text" id="udlr-100" class="input-field py-1" placeholder="UDLR" aria-label="U1"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-200" class="input-field py-1 text-center" value="200" aria-label="D2"><input type="text" id="clicks-200" class="input-field py-1" placeholder="Clicks" aria-label="C2"><input type="text" id="udlr-200" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-300" class="input-field py-1 text-center" value="300" aria-label="D3"><input type="text" id="clicks-300" class="input-field py-1" placeholder="Clicks" aria-label="C3"><input type="text" id="udlr-300" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-400" class="input-field py-1 text-center" value="400" aria-label="D4"><input type="text" id="clicks-400" class="input-field py-1" placeholder="Clicks" aria-label="C4"><input type="text" id="udlr-400" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-500" class="input-field py-1 text-center" value="500" aria-label="D5"><input type="text" id="clicks-500" class="input-field py-1" placeholder="Clicks" aria-label="C5"><input type="text" id="udlr-500" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-600" class="input-field py-1 text-center" value="600" aria-label="D6"><input type="text" id="clicks-600" class="input-field py-1" placeholder="Clicks" aria-label="C6"><input type="text" id="udlr-600" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-700" class="input-field py-1 text-center" value="700" aria-label="D7"><input type="text" id="clicks-700" class="input-field py-1" placeholder="Clicks" aria-label="C7"><input type="text" id="udlr-700" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-800" class="input-field py-1 text-center" value="800" aria-label="D8"><input type="text" id="clicks-800" class="input-field py-1" placeholder="Clicks" aria-label="C8"><input type="text" id="udlr-800" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-900" class="input-field py-1 text-center" value="900" aria-label="D9"><input type="text" id="clicks-900" class="input-field py-1" placeholder="Clicks" aria-label="C9"><input type="text" id="udlr-900" class="input-field py-1" placeholder="UDLR"></div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded"><input type="text" id="dist-1000" class="input-field py-1 text-center" value="1000" aria-label="D10"><input type="text" id="clicks-1000" class="input-field py-1" placeholder="Clicks" aria-label="C10"><input type="text" id="udlr-1000" class="input-field py-1" placeholder="UDLR"></div>
                         </div>
                     </div>
                 </section>
 
                 <section class="bg-gray-900 border border-gray-800 rounded p-4 space-y-2">
-                    <h2 class="section-label flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3 text-neon-green"></i> Calculator</h2>
-                    <input type="text" id="calc-display" class="w-full bg-black text-right p-3 rounded font-mono text-neon-green text-xl border border-gray-800 mb-2" readonly value="0">
+                    <h2 class="section-label flex items-center gap-2"><i data-lucide="calculator" class="w-3 h-3 text-neon-green" aria-hidden="true"></i> Calculator</h2>
+                    <input type="text" id="calc-display" class="w-full bg-black text-right p-3 rounded font-mono text-neon-green text-xl border border-gray-800 mb-2" readonly value="0" aria-label="Display">
                     <div class="grid grid-cols-4 gap-1">
                         <button class="bg-red-900/40 text-red-500 p-2 rounded text-xs font-bold" onclick="clearCalc()">C</button>
                         <button class="bg-gray-800 p-2 rounded text-xs" onclick="appendCalc('/')">/</button>
@@ -159,23 +178,22 @@
                         <button class="bg-gray-800 p-2 rounded text-sm" onclick="appendCalc('1')">1</button>
                         <button class="bg-gray-800 p-2 rounded text-sm" onclick="appendCalc('2')">2</button>
                         <button class="bg-gray-800 p-2 rounded text-sm" onclick="appendCalc('3')">3</button>
-                        <button class="bg-gray-900 p-2 rounded text-sm border border-neon-green/30 text-neon-green row-span-2 font-bold" onclick="executeCalc()">=</button>
+                        <button class="bg-gray-900 p-2 rounded text-sm border border-neon-green/30 text-neon-green row-span-2 font-bold" onclick="executeCalc()" aria-label="Calculate">=</button>
                         <button class="bg-gray-800 p-2 rounded text-sm col-span-2" onclick="appendCalc('0')">0</button>
                         <button class="bg-gray-800 p-2 rounded text-sm font-bold" onclick="appendCalc('.')">.</button>
                     </div>
                 </section>
 
-                <div class="pt-4"><button id="downloadBtn" aria-label="Download card image" class="w-full bg-neon-green text-white font-extrabold py-4 rounded-lg uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-lg hover:bg-green-500 transition-all"><i data-lucide="download"></i> DOWNLOAD CARD IMAGE</button></div>
+                <div class="pt-4"><button id="downloadBtn" aria-label="Export Image" class="w-full bg-neon-green text-white font-extrabold py-4 rounded-lg uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-lg hover:bg-green-500 transition-all"><i data-lucide="download" aria-hidden="true"></i> DOWNLOAD CARD IMAGE</button></div>
 
-                <div id="mobile-live-preview-complete" class="space-y-6 mt-8 border-t border-gray-700 pt-8 pb-40">
-                    
+                <div id="mobile-live-preview-complete" class="space-y-6 mt-8 border-t border-gray-700 pt-8 pb-10">
                     <div class="bg-white text-black p-4 rounded shadow-lg font-mono">
-                        <div class="flex justify-between border-b-2 border-black pb-2 mb-2">
-                             <div class="flex flex-col"><h2 class="text-xl font-black uppercase leading-none">RELOAD DATA</h2><div class="text-[10px] font-bold">NOTES: <span id="mobile-display-header-notes" class="font-handwriting text-blue-800"></span></div></div>
+                        <div class="flex justify-between border-b-2 border-black pb-2 mb-2 text-black">
+                             <div class="flex flex-col"><h2 class="text-xl font-black uppercase leading-none text-black">RELOAD DATA</h2><div class="text-[10px] font-bold">NOTES: <span id="mobile-display-header-notes" class="font-handwriting text-blue-800"></span></div></div>
                              <div class="flex flex-col items-end"><span class="text-[8px] uppercase">SHOOTER / COMPANY</span><span id="mobile-display-shooter-name" class="font-handwriting text-blue-800 font-bold text-right"></span></div>
                         </div>
                         <div class="grid grid-cols-[1.4fr_0.8fr_0.8fr] gap-x-2 gap-y-1 text-[10px] font-bold text-black">
-                            <div>Timestamp<div class="flex gap-1"><span id="mobile-display-date" class="text-blue-800 font-normal"></span><span>@</span><span id="mobile-display-time" class="text-blue-800 font-normal"></span></div></div>
+                            <div class="flex flex-col"><span>Timestamp</span><div class="flex gap-1"><span id="mobile-display-date" class="text-blue-800 font-normal"></span><span>@</span><span id="mobile-display-time" class="text-blue-800 font-normal"></span></div></div>
                             <div>Zero Range<span id="mobile-display-zero" class="text-blue-800 block font-normal"></span></div>
                             <div>Caliber<span id="mobile-display-caliber" class="text-blue-800 block font-normal"></span></div>
                             <div>Bullet<span id="mobile-display-bullet" class="text-blue-800 block font-normal"></span></div>
@@ -192,48 +210,42 @@
                             <div class="col-span-3">Group<span id="mobile-display-groupSize" class="text-blue-800 block font-normal"></span></div>
                         </div>
                     </div>
-
                     <div class="bg-white text-black p-4 rounded shadow-lg border border-black text-[10px] font-bold">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-4 text-black">
                             <div class="flex justify-between"><span>ELEV:</span> <span id="mobile-display-elevation" class="text-blue-800"></span></div>
                             <div class="flex justify-between"><span>HOLD:</span> <span id="mobile-display-hold-data" class="text-blue-800"></span></div>
                         </div>
-                        <div class="bg-black text-white px-2 py-1 mt-1 flex justify-between"><span class="text-neon-green">FINAL DOPE:</span><span id="mobile-display-final-dope" class="text-blue-400"></span></div>
+                        <div class="bg-black text-white px-2 py-1 mt-1 flex justify-between"><span class="text-neon-green">FINAL DOPE:</span><span id="mobile-display-final-dope" class="text-lg font-bold"></span></div>
                     </div>
-
                     <div class="bg-white text-black p-4 rounded shadow-lg space-y-2">
-                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem]"><img src="https://img.icons8.com/ios-filled/50/000000/sniper-rifle.png" alt="Rifle" class="w-5 h-5 opacity-40"><span id="mobile-display-rifle-notes" class="text-[10px]"></span></div>
-                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem]"><i data-lucide="crosshair" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-scope-notes" class="text-[10px]"></span></div>
-                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem]"><i data-lucide="binoculars" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-lrf-notes" class="text-[10px]"></span></div>
-                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem]"><i data-lucide="wind" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-wind-notes" class="text-[10px]"></span></div>
-                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem]"><i data-lucide="compass" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-compass-range" class="text-[10px]"></span></div>
+                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><img src="https://img.icons8.com/ios-filled/50/000000/sniper-rifle.png" alt="Rifle" class="w-5 h-5 opacity-40"><span id="mobile-display-rifle-notes" class="text-[10px]"></span></div>
+                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="crosshair" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-scope-notes" class="text-[10px]"></span></div>
+                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="binoculars" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-lrf-notes" class="text-[10px]"></span></div>
+                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="wind" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-wind-notes" class="text-[10px]"></span></div>
+                        <div class="border border-black p-1 flex items-center gap-2 min-h-[1.5rem] text-black"><i data-lucide="compass" class="w-4 h-4 opacity-40 text-black"></i> <span id="mobile-display-direction-notes" class="text-[10px]"></span></div>
                     </div>
-
-                    <div class="bg-white text-black p-4 rounded shadow-lg flex justify-center gap-4">
-                         <div class="text-center"><p class="text-[10px] font-bold text-black mb-1">HOLD</p><div class="flex justify-center"><canvas id="mobile-canvas-hold" width="140" height="140" class="border border-black rounded-full"></canvas></div></div>
-                         <div class="text-center"><p class="text-[10px] font-bold text-black mb-1">SHOT</p><div class="flex justify-center"><canvas id="mobile-canvas-shot" width="140" height="140" class="border border-black rounded-full"></canvas></div></div>
-                    </div>
-
-                    <div class="bg-white text-black p-4 rounded shadow-lg border-2 border-black">
-                         <div class="grid grid-cols-4 bg-black text-white text-center text-[10px] py-1 font-bold"><div>CLICKS</div><div class="col-span-2">RANGE</div><div>UD-LR</div></div>
-                         <div id="mobile-distance-table-body" class="flex flex-col text-[10px] font-bold text-black"></div>
-                    </div>
-
                     <div class="bg-white text-black p-4 rounded shadow-lg border border-black relative h-64 overflow-hidden">
                         <span class="absolute top-1 left-1/2 -translate-x-1/2 font-bold text-[10px] text-black z-20">N 0°</span>
                         <span class="absolute right-1 top-1/2 -translate-y-1/2 font-bold text-[10px] text-black z-20">90° E</span>
                         <span class="absolute left-1 top-1/2 -translate-y-1/2 font-bold text-[10px] text-black z-20">W 270°</span>
                         <span class="absolute bottom-1 left-1/2 -translate-x-1/2 font-bold text-[10px] text-black z-20">S 180°</span>
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"><div class="w-32 h-32 border border-gray-200 rounded-full flex items-center justify-center"><p class="font-bold text-gray-200 tracking-widest text-xs uppercase">YOU</p></div></div>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"><div class="w-32 h-32 border border-gray-200 rounded-full flex items-center justify-center"><p class="font-bold text-gray-200 tracking-widest text-xs uppercase text-black">YOU</p></div></div>
                         <div class="absolute top-2 left-2 z-30 font-bold text-[10px] pointer-events-none text-black">
-                            <div class="flex gap-2"><span>DIR:</span><span id="mobile-display-direction-notes" class="text-blue-800"></span></div>
-                            <div class="flex gap-2"><span>T1:</span><span id="mobile-display-shooting-angle" class="text-blue-800"></span></div>
-                            <div class="flex gap-2"><span>T2:</span><span id="mobile-display-shooting-angle-2" class="text-blue-800"></span></div>
-                            <div class="flex gap-2"><span>T3:</span><span id="mobile-display-shooting-angle-3" class="text-blue-800"></span></div>
+                            <div class="flex gap-2"><span>DIR:</span><span id="mobile-display-shooting-angle" class="text-blue-800"></span></div>
+                            <div class="flex gap-2"><span>T1:</span><span id="mobile-display-compass-range" class="text-blue-800"></span></div>
+                            <div class="flex gap-2"><span>T2:</span><span id="mobile-display-compass-range-2" class="text-blue-800"></span></div>
+                            <div class="flex gap-2"><span>T3:</span><span id="mobile-display-compass-range-3" class="text-blue-800"></span></div>
                         </div>
                         <canvas id="mobile-compass-vector" width="300" height="300" class="absolute inset-0 w-full h-full z-10"></canvas>
-                        <canvas id="mobile-pencil-canvas" width="300" height="300" class="absolute inset-0 w-full h-full z-20"></canvas>
                     </div>
+                    <div class="bg-white text-black p-4 rounded shadow-lg border-2 border-black">
+                        <div class="grid grid-cols-4 bg-black text-white text-center text-[10px] py-1 font-bold"><div>CLICKS</div><div class="col-span-2">RANGE</div><div>UD-LR</div></div>
+                        <div id="mobile-distance-table-body" class="flex-1 flex flex-col text-[10px] font-bold text-black"></div>
+                    </div>
+                </div>
+
+                <div class="mt-20 pt-8 border-t border-gray-800 text-center pb-20">
+                    <p class="text-[10px] text-gray-500 font-handwriting">&copy; 2026 Ralph Mccabe. All Rights Reserved.</p>
                 </div>
             </div>
         </aside>
@@ -244,7 +256,7 @@
                     
                     <div class="flex justify-between items-end mb-6 border-b-2 border-black pb-2 text-black">
                         <div class="flex items-center gap-8">
-                            <div class="flex flex-col"><h2 class="text-4xl font-extrabold uppercase leading-none">Reload Data</h2><p class="text-[10px] text-gray-400 italic">FreeVersion</p></div>
+                            <div class="flex flex-col"><h2 class="text-4xl font-extrabold uppercase leading-none text-black">Reload Data</h2><p class="text-[10px] text-gray-400 italic">FreeVersion</p></div>
                             <div class="text-xl font-bold text-black">NOTES : <span id="display-header-notes" class="font-handwriting text-blue-800"></span></div>
                         </div>
                         <div class="flex flex-col items-end pb-1 text-black"><span class="text-[10px] font-bold uppercase tracking-widest">Shooter / Company</span><span id="display-shooter-name" class="font-handwriting text-blue-800 font-bold text-xl leading-none text-right"></span></div>
@@ -268,17 +280,17 @@
                             <div class="flex flex-col"><span class="text-[8px] text-gray-600">Rings</span><span id="display-rings" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col col-span-3"><span class="text-[8px] text-gray-600">Group</span><span id="display-groupSize" class="text-blue-800 font-normal"></span></div>
                             <div class="col-span-3 mt-2 grid grid-cols-2 gap-4 bg-gray-50 p-2 border border-black rounded-sm">
-                                <div class="flex justify-between"><span>ELEV:</span> <span id="display-elevation" class="text-blue-800 font-bold"></span></div>
-                                <div class="flex justify-between"><span>HOLD:</span> <span id="display-hold-data" class="text-blue-800 font-bold"></span></div>
+                                <div class="flex justify-between text-black"><span>ELEV:</span> <span id="display-elevation" class="text-blue-800 font-bold"></span></div>
+                                <div class="flex justify-between text-black"><span>HOLD:</span> <span id="display-hold-data" class="text-blue-800 font-bold"></span></div>
                                 <div class="col-span-2 flex justify-between items-center bg-black text-white px-2 py-1 mt-1"><span class="text-[10px] font-bold text-neon-green">FINAL DOPE:</span><span id="display-final-dope" class="text-lg font-bold"></span></div>
                             </div>
                         </div>
                         <div class="w-1/4 flex flex-col gap-2">
-                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><img src="https://img.icons8.com/ios-filled/50/000000/sniper-rifle.png" alt="Rifle" class="w-5 h-5 opacity-40"><span id="display-rifle-notes" class="text-[10px] text-black"></span></div>
-                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="crosshair" class="w-4 h-4 opacity-40"></i> <span id="display-scope-notes" class="text-[10px] text-black"></span></div>
-                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="binoculars" class="w-4 h-4 opacity-40"></i> <span id="display-lrf-notes" class="text-[10px] text-black"></span></div>
-                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="wind" class="w-4 h-4 opacity-40"></i> <span id="display-wind-notes" class="text-[10px] text-black"></span></div>
-                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="compass" class="w-4 h-4 opacity-40"></i> <span id="display-compass-range" class="text-[10px] text-black"></span></div>
+                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><img src="https://img.icons8.com/ios-filled/50/000000/sniper-rifle.png" alt="Rifle" class="w-5 h-5 opacity-40"><span id="display-rifle-notes" class="text-[10px]"></span></div>
+                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="crosshair" class="w-4 h-4 opacity-40"></i> <span id="display-scope-notes" class="text-[10px]"></span></div>
+                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="binoculars" class="w-4 h-4 opacity-40"></i> <span id="display-lrf-notes" class="text-[10px]"></span></div>
+                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="wind" class="w-4 h-4 opacity-40"></i> <span id="display-wind-notes" class="text-[10px]"></span></div>
+                             <div class="border border-black p-1 min-h-[2.5rem] flex items-center gap-2 text-black"><i data-lucide="compass" class="w-4 h-4 opacity-40"></i> <span id="display-direction-notes" class="text-[10px]"></span></div>
                         </div>
                         <div class="flex-1 flex gap-2">
                             <div class="flex-1 text-center"><p class="text-[10px] font-bold mb-1 text-black">HOLD</p><div class="flex justify-center"><canvas id="canvas-hold" width="200" height="200" class="border border-black rounded-full"></canvas></div></div>
@@ -286,15 +298,22 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 flex gap-4 mt-4 overflow-hidden">
+                    <div class="flex-1 flex gap-4 mt-4 overflow-hidden text-black">
                         <div class="w-1/3 border-2 border-black flex flex-col"><div class="grid grid-cols-4 bg-black text-white text-center text-[10px] py-1"><div>CLICKS</div><div class="col-span-2">RANGE</div><div>UD-LR</div></div><div id="distance-table-body" class="flex-1 flex flex-col text-[10px] font-bold text-black"></div></div>
                         <div class="flex-1 relative border border-black bg-gray-50/50 overflow-hidden text-black">
-                            <span class="absolute top-1 left-1/2 -translate-x-1/2 font-bold text-[10px] text-black z-20">N 0°</span>
-                            <span class="absolute right-1 top-1/2 -translate-y-1/2 font-bold text-[10px] text-black z-20">90° E</span>
-                            <span class="absolute left-1 top-1/2 -translate-y-1/2 font-bold text-[10px] text-black z-20">W 270°</span>
-                            <span class="absolute bottom-1 left-1/2 -translate-x-1/2 font-bold text-[10px] text-black z-20">S 180°</span>
+                            <span class="absolute top-1 left-1/2 -translate-x-1/2 font-bold text-[10px] z-20">N 0°</span>
+                            <span class="absolute right-1 top-1/2 -translate-y-1/2 font-bold text-[10px] z-20">90° E</span>
+                            <span class="absolute left-1 top-1/2 -translate-y-1/2 font-bold text-[10px] z-20">W 270°</span>
+                            <span class="absolute bottom-1 left-1/2 -translate-x-1/2 font-bold text-[10px] z-20">S 180°</span>
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"><div class="w-32 h-32 border border-gray-200 rounded-full flex items-center justify-center"><p class="font-bold text-gray-200 tracking-widest text-xs uppercase">YOU</p></div></div>
-                            <div class="absolute top-2 left-2 z-30 font-bold text-[10px] pointer-events-none text-black"><div class="flex gap-2"><span>DIR:</span><span id="display-direction-notes" class="text-blue-800"></span></div><div class="flex gap-2"><span>T1:</span><span id="display-shooting-angle" class="text-blue-800"></span></div></div>
+                            
+                            <div class="absolute top-2 left-2 z-30 font-bold text-[10px] pointer-events-none text-black">
+                                <div class="flex gap-2"><span>DIR:</span><span id="display-shooting-angle" class="text-blue-800"></span></div>
+                                <div class="flex gap-2"><span>T1:</span><span id="display-compass-range" class="text-blue-800"></span></div>
+                                <div class="flex gap-2"><span>T2:</span><span id="display-compass-range-2" class="text-blue-800"></span></div>
+                                <div class="flex gap-2"><span>T3:</span><span id="display-compass-range-3" class="text-blue-800"></span></div>
+                            </div>
+                            
                             <canvas id="compass-vector" width="300" height="300" class="absolute inset-0 w-full h-full z-10"></canvas>
                             <canvas id="pencil-canvas" width="300" height="300" class="absolute inset-0 w-full h-full z-20"></canvas>
                         </div>
@@ -308,19 +327,22 @@
     <div id="libraryModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-gray-700 w-full max-w-5xl h-[90vh] rounded-xl flex flex-col overflow-hidden shadow-2xl">
             <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-black/30">
-                <div class="flex items-center gap-3"><i data-lucide="database" class="w-5 h-5 text-neon-green" aria-hidden="true"></i><h2 class="text-lg font-bold uppercase text-white">Repository</h2></div>
-                <button id="closeLibraryBtn" aria-label="Close library modal" class="p-2 bg-gray-800 rounded-lg group"><i data-lucide="x" class="w-6 h-6 text-white" aria-hidden="true"></i></button>
+                <div class="flex items-center gap-3"><i data-lucide="database" class="w-5 h-5 text-neon-green"></i><h2 class="text-lg font-bold uppercase text-white">Repository</h2></div>
+                <button id="closeLibraryBtn" aria-label="Close modal" class="p-2 bg-gray-800 rounded-lg group"><i data-lucide="x" class="w-6 h-6 text-white" aria-hidden="true"></i></button>
             </div>
             <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
                 <div class="w-full lg:w-80 border-r border-gray-800 bg-black/20 flex flex-col"><div id="libraryList" class="flex-1 overflow-y-auto p-2"></div></div>
                 <div class="flex-1 flex flex-col bg-gray-950 relative">
                     <div id="noSelection" class="absolute inset-0 flex flex-col items-center justify-center text-center"><p class="text-gray-600 font-mono text-xs uppercase tracking-widest">Load record</p></div>
                     <div id="profilePreview" class="absolute inset-0 flex flex-col hidden z-10">
-                        <div class="p-5 bg-black/60 border-b border-gray-800 flex justify-between items-center"><h3 id="previewName" class="text-2xl font-black text-white truncate uppercase">---</h3><div class="flex gap-4"><button id="viewImageBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Report</button><button id="viewDataBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Data</button></div></div>
+                        <div class="p-5 bg-black/60 border-b border-gray-800 flex justify-between items-center">
+                            <h3 id="previewName" class="text-2xl font-black text-white truncate uppercase">---</h3>
+                            <div class="flex gap-4"><button id="viewImageBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Report</button><button id="viewDataBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Data</button></div>
+                        </div>
                         <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center p-4"><img id="prevImage" src="" class="shadow-2xl border border-gray-700 bg-white" alt="Record Snapshot"></div>
                         <div id="previewActions" class="p-5 bg-black/80 border-t border-gray-800 flex gap-4 mt-auto">
                             <button id="loadSelectedBtn" class="flex-1 bg-neon-green text-black font-extrabold py-4 rounded-lg uppercase text-xs">Inject Data</button>
-                            <button id="deleteSelectedBtn" class="px-8 bg-black border border-gray-800 text-gray-400 py-4 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4" aria-hidden="true"></i></button>
+                            <button id="deleteSelectedBtn" class="px-8 bg-black border border-gray-800 text-gray-400 py-4 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </div>
@@ -334,8 +356,10 @@
         <div id="dataPreview"></div><div id="snapshotPreview"></div><span id="prevHeaderNotes"></span><span id="prevShooter"></span><span id="prevVel"></span><span id="prevZero"></span><span id="prevFinal"></span><span id="prevTime"></span><span id="prevElev"></span><span id="prevHold"></span><span id="prevBarrel"></span><span id="prevPowder"></span><span id="prevLoad"></span><span id="prevCOL"></span><span id="prevRings"></span><span id="prevG1"></span><span id="prevRifleNotes"></span><span id="prevWeather"></span><div id="prevDistanceTable"></div><span id="previewCaliber"></span><span id="prevDate"></span><div id="noImageMsg"></div>
     </div>
 
-    <footer class="text-center py-4 bg-gray-900 border-t border-gray-700"><p class="text-[10px] text-gray-400 font-handwriting">&copy; 2026 Ralph Mccabe. All Rights Reserved.</p></footer>
     <script src="idb_helper.js"></script><script src="original_script.js"></script>
-    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); }); } function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }</script>
+    <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); }); } 
+        function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }
+    </script>
 </body>
 </html>
