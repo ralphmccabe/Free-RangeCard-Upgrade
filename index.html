@@ -121,15 +121,15 @@
 
                         <h2 class="section-label">Shooters Direction and Yardage</h2>
                         <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle" class="input-field" placeholder="Degrees">
+                            <input type="text" id="shooting-angle" class="input-field" placeholder="T1=Fav-DIR:">
                             <input type="text" id="compass-range" class="input-field" placeholder="Range / Note">
                         </div>
                         <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle-2" class="input-field" placeholder="Degrees">
+                            <input type="text" id="shooting-angle-2" class="input-field" placeholder="T2">
                             <input type="text" id="compass-range-2" class="input-field" placeholder="Range / Note">
                         </div>
                         <div class="grid grid-cols-[80px_1fr] gap-2 col-span-2">
-                            <input type="text" id="shooting-angle-3" class="input-field" placeholder="Degrees">
+                            <input type="text" id="shooting-angle-3" class="input-field" placeholder="T3">
                             <input type="text" id="compass-range-3" class="input-field" placeholder="Range / Note">
                         </div>
                         
@@ -410,6 +410,62 @@
                             <div class="flex gap-4"><button id="viewImageBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Report</button><button id="viewDataBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Data</button></div>
                         </div>
                         <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center p-4"><img id="prevImage" src="" class="shadow-2xl border border-gray-700 bg-white" alt="Snapshot"></div>
+                        
+                        <!-- NEW VISIBLE DATA PREVIEW -->
+                        <div id="dataPreview" class="flex-1 overflow-y-auto hidden p-6 space-y-6 custom-scrollbar text-white">
+                            <!-- Top Stats Grid -->
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-gray-900/60 border border-gray-800 rounded-lg p-4">
+                                    <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-1">Timestamp</div>
+                                    <div class="text-xs font-mono"><span id="prevDate">--</span> @ <span id="prevTime">--</span></div>
+                                </div>
+                                <div class="bg-gray-900/60 border border-gray-800 rounded-lg p-4">
+                                    <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-1">Elevation Corr.</div>
+                                    <div id="prevElev" class="text-xs font-mono">--</div>
+                                </div>
+                                <div class="bg-gray-900/60 border border-gray-800 rounded-lg p-4">
+                                    <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-1">Hold Over</div>
+                                    <div id="prevHold" class="text-xs font-mono">--</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6">
+                                <!-- Load Specs -->
+                                <div class="bg-gray-900/40 border border-gray-800 p-5 rounded-xl space-y-4 relative overflow-hidden">
+                                     <div class="text-[9px] font-black uppercase text-gray-400 border-b border-gray-800 pb-2 flex justify-between">
+                                         <span>Load Specifications</span>
+                                         <i data-lucide="info" class="w-3 h-3 opacity-30"></i>
+                                     </div>
+                                     <div class="space-y-2 text-[11px] font-mono">
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>Caliber:</span> <span id="previewCaliber" class="text-white">--</span></div>
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>Barrel:</span> <span id="prevBarrel" class="text-white">--</span></div>
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>Powder:</span> <span id="prevPowder" class="text-white">--</span></div>
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>Charge:</span> <span id="prevLoad" class="text-white">--</span></div>
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>C.O.L:</span> <span id="prevCOL" class="text-white">--</span></div>
+                                         <div class="flex justify-between border-b border-gray-800/30 pb-1 text-gray-300"><span>Rings:</span> <span id="prevRings" class="text-white">--</span></div>
+                                         <div class="flex justify-between text-gray-300"><span>G1/BC:</span> <span id="prevG1" class="text-white">--</span></div>
+                                     </div>
+                                </div>
+
+                                <!-- Ballistic Reference -->
+                                <div class="bg-gray-900/40 border border-gray-800 p-5 rounded-xl space-y-4">
+                                     <div class="text-[9px] font-black uppercase text-gray-400 border-b border-gray-800 pb-2">Ballistic Reference</div>
+                                     <div id="prevDistanceTable" class="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                                         <!-- JS Inject -->
+                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/40 border border-neon-green/20 p-4 rounded-lg">
+                                <div class="text-[8px] text-neon-green font-bold uppercase tracking-widest mb-1 leading-none">Final Session Dope</div>
+                                <div id="prevFinal" class="text-2xl font-black text-white">--</div>
+                            </div>
+                            
+                            <!-- Hidden storage for remaining metadata to keep JS happy -->
+                            <div class="hidden">
+                                <span id="prevVel"></span><span id="prevHeaderNotes"></span><span id="prevShooter"></span><span id="prevWeather"></span><span id="prevRifleNotes"></span><span id="prevZero"></span>
+                            </div>
+                        </div>
                         <div id="previewActions" class="p-5 bg-black/80 border-t border-gray-800 flex gap-4 mt-auto">
                             <button id="loadSelectedBtn" class="flex-1 bg-neon-green text-black font-extrabold py-4 rounded-lg uppercase text-xs">Inject Data</button>
                             <button id="deleteSelectedBtn" class="px-8 bg-black border border-gray-800 text-gray-400 py-4 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -423,7 +479,7 @@
     <div class="sr-only" aria-hidden="true">
         <canvas id="mobile-canvas-hold"></canvas><canvas id="mobile-canvas-shot"></canvas>
         <span id="mobile-display-elevation"></span><span id="mobile-display-hold-data"></span><span id="mobile-display-final-dope"></span>
-        <div id="dataPreview"></div><div id="snapshotPreview"></div><span id="prevHeaderNotes"></span><span id="prevShooter"></span><span id="prevVel"></span><span id="prevZero"></span><span id="prevFinal"></span><span id="prevTime"></span><span id="prevElev"></span><span id="prevHold"></span><span id="prevBarrel"></span><span id="prevPowder"></span><span id="prevLoad"></span><span id="prevCOL"></span><span id="prevRings"></span><span id="prevG1"></span><span id="prevRifleNotes"></span><span id="prevWeather"></span><div id="prevDistanceTable"></div><span id="previewCaliber"></span><span id="prevDate"></span><div id="noImageMsg"></div>
+        <div id="noImageMsg"></div>
     </div>
 
     <script src="idb_helper.js"></script><script src="original_script.js"></script>
