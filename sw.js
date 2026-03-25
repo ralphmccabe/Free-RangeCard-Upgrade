@@ -1,19 +1,19 @@
-/* TRC-FREE-VERSION - v1.4-STABLE */
-const CACHE_NAME = 'trc-free-v1.4';
+/* TRC-FREE-VERSION - v1.5-STABLE */
+const CACHE_NAME = 'trc-free-v1.5';
 const ASSETS = [
     './',
-    './index.html',
-    './style.css?v=1.4',
-    './original_script.js?v=1.4',
+    './index.html?v=1.5',
+    './style.css?v=1.5',
+    './original_script.js?v=1.5',
     './manifest.json',
     './icon-512.png',
     './icon-192.png',
     './splash-page.jpg',
     './Screenshot_13-2-2026_35249_.jpeg',
     './tailwind-prod.css',
-    './lucide.min.js?v=1.4',
-    './html2canvas.min.js?v=1.4',
-    './idb_helper.js?v=1.4',
+    './lucide.min.js?v=1.5',
+    './html2canvas.min.js?v=1.5',
+    './idb_helper.js?v=1.5',
     'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap'
 ];
 
