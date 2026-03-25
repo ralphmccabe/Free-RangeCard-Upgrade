@@ -16,10 +16,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.3">
 
-    <script src="html2canvas.min.js" defer></script>
-    <script src="lucide.min.js" defer></script>
+    <script src="html2canvas.min.js?v=1.3"></script>
+    <script src="lucide.min.js?v=1.3"></script>
 
     <style>
         :root { --accent-color: #22c55e; --accent-rgb: 34, 197, 94; --neon-green: #4ade80; }
@@ -482,7 +482,7 @@
         <div id="noImageMsg"></div>
     </div>
 
-    <script src="idb_helper.js"></script><script src="original_script.js"></script>
+    <script src="idb_helper.js?v=1.3"></script><script src="original_script.js?v=1.3"></script>
     <script>
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); }); } 
         function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }
