@@ -150,12 +150,16 @@ canvas {
     color: #1e3a8a;
 }
 
-/* Handwriting Font Simulation */
+/* Handwriting Font Simulation with Layout Guard */
 .font-handwriting {
     font-family: 'Inter', sans-serif;
-    /* Fallback for now, could be a cursive font */
     font-style: italic;
     font-size: 11px;
+    /* Prevent long names or notes from stretching the containers */
+    overflow-wrap: break-word;
+    word-break: break-all;
+    display: inline-block;
+    max-width: 100%;
 }
 
 /* Mobile View Toggle Styling */

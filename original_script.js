@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // === 0. Global Security & Layout Protection ===
+    // Enforce a 25-character limit on ALL text boxes to prevent layout breakage
+    document.querySelectorAll('input[type="text"]').forEach(el => {
+        el.setAttribute('maxlength', '25');
+    });
+
     // === 1. Setup & Table Generation ===
     const tableBody = document.getElementById('distance-table-body');
     const mobileTableBody = document.getElementById('mobile-distance-table-body'); // NEW
@@ -301,16 +307,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('prevWeather').textContent = data.weather || '--';
         document.getElementById('prevRifleNotes').textContent = data['rifle-notes'] || '--';
 
-        // Distance Table (100-500)
+        // Distance Table (100-1000)
         const dTable = document.getElementById('prevDistanceTable');
         if (dTable) {
             dTable.innerHTML = '';
-            [100, 200, 300, 400, 500].forEach(d => {
+            [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000].forEach(d => {
                 const clicks = data[`clicks-${d}`] || '--';
                 const udlr = data[`udlr-${d}`] || '--';
                 const row = document.createElement('div');
-                row.className = "p-2 bg-black/40 border border-gray-800 rounded flex flex-col items-center";
-                row.innerHTML = `<span class="text-[8px] text-gray-400">${d}Y</span><span class="text-xs text-blue-400 font-bold">${clicks}</span><span class="text-[8px] text-gray-600">${udlr}</span>`;
+                row.className = "p-2 bg-black/60 border border-gray-800 rounded-lg flex flex-col items-center justify-center transition-all hover:border-neon-green/30";
+                row.innerHTML = `
+                    <span class="text-[7px] text-gray-500 font-bold uppercase tracking-tighter">${d}Y</span>
+                    <span class="text-[11px] text-neon-green font-black leading-tight">${clicks}</span>
+                    <span class="text-[7px] text-blue-400/70 font-bold uppercase">${udlr}</span>
+                `;
                 dTable.appendChild(row);
             });
         }
