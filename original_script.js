@@ -226,16 +226,17 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    function getProfiles() { return JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}'); }
+    window.getProfiles = function() { return JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}'); };
 
-    function updateProfileList() {
+    window.updateProfileList = function() {
         const ps = getProfiles();
         // Update hidden select
         profileSelect.innerHTML = '<option value="">Select a profile...</option>';
         // Update Library List
         if (libraryList) libraryList.innerHTML = '';
 
-        Object.keys(ps).sort().reverse().forEach(name => {
+        const names = Object.keys(ps).sort().reverse();
+        names.forEach((name, index) => {
             // Dropdown
             const opt = document.createElement('option');
             opt.value = name; opt.textContent = name;
@@ -247,10 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.className = "p-4 bg-gray-800/30 hover:bg-neon-green/10 rounded-lg border border-gray-800 hover:border-neon-green/40 cursor-pointer transition-all group";
                 item.innerHTML = `
                     <div class="flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="font-bold text-sm text-gray-200 truncate pr-4 group-hover:text-white">${name}</div>
-                            <div class="text-[9px] text-gray-400 font-mono uppercase mt-1">
-                                ${ps[name].caliber || 'No Caliber'} • ${ps[name].date || '--'}
+                        <div class="min-w-0 flex items-center gap-3">
+                            <span class="text-[9px] font-mono text-neon-green opacity-40">${names.length - index}.</span>
+                            <div class="min-w-0">
+                                <div class="font-bold text-sm text-gray-200 truncate pr-4 group-hover:text-white">${name}</div>
+                                <div class="text-[9px] text-gray-400 font-mono uppercase mt-1">
+                                    ${ps[name].caliber || 'No Caliber'} • ${ps[name].date || '--'}
+                                </div>
                             </div>
                         </div>
                         <i data-lucide="chevron-right" class="w-4 h-4 text-gray-700 group-hover:text-neon-green"></i>
@@ -263,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) lucide.createIcons();
     }
 
-    function previewProfile(name) {
+    window.previewProfile = function(name) {
         const ps = getProfiles();
         const data = ps[name];
         if (!data) return;
@@ -937,3 +941,88 @@ window.calcCos = function () {
     const d = document.getElementById('calc-display');
     try { const v = parseFloat(d.value); if (!isNaN(v)) d.value = Math.cos(v * Math.PI / 180).toFixed(4); } catch { d.value = 'Error'; setTimeout(clearCalc, 1000); }
 };
+
+// --- Vault Swipe Controller (V1.6 Connected) ---
+document.addEventListener('DOMContentLoaded', () => {
+    let profileNames = [];
+    let currentProfileIndex = -1;
+
+    function refreshProfileNames() {
+        if (!window.getProfiles) return;
+        const ps = window.getProfiles();
+        profileNames = Object.keys(ps).sort().reverse();
+    }
+
+    // Hook into the original update logic
+    const originalUpdate = window.updateProfileList;
+    window.updateProfileList = function() {
+        if (originalUpdate) originalUpdate.apply(this, arguments);
+        refreshProfileNames();
+        updateGalleryStats();
+    };
+
+    const originalPreview = window.previewProfile;
+    window.previewProfile = function(name) {
+        if (originalPreview) originalPreview.apply(this, arguments);
+        refreshProfileNames(); 
+        currentProfileIndex = profileNames.indexOf(name);
+        
+        // Mobile UX: Shrink list to make card huge when viewing
+        const listContainer = document.querySelector('#libraryModal .lg\\:w-80');
+        if (window.innerWidth < 1024 && listContainer) {
+            listContainer.style.maxHeight = '65px';
+            listContainer.style.overflow = 'hidden';
+            listContainer.classList.add('opacity-50');
+        }
+        updateGalleryStats();
+    };
+
+    function updateGalleryStats() {
+        const counter = document.getElementById('galleryCounter');
+        if (counter && currentProfileIndex !== -1 && profileNames.length > 0) {
+            counter.classList.remove('hidden');
+            counter.textContent = `Card ${currentProfileIndex + 1} of ${profileNames.length}`;
+        }
+    }
+
+    function navigate(dir, event) {
+        if (event) { event.preventDefault(); event.stopPropagation(); }
+        refreshProfileNames(); 
+        if (profileNames.length === 0) return;
+        
+        // Use the public window function to force the flip
+        let nextIndex = currentProfileIndex + dir;
+        if (nextIndex >= profileNames.length) nextIndex = 0;
+        if (nextIndex < 0) nextIndex = profileNames.length - 1;
+        
+        const nextName = profileNames[nextIndex];
+        if (nextName && window.previewProfile) {
+            window.previewProfile(nextName);
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+
+    // Attach Click Events
+    const prevBtn = document.getElementById('prevProfileBtn');
+    const nextBtn = document.getElementById('nextProfileBtn');
+    if (prevBtn) prevBtn.onclick = (e) => navigate(-1, e);
+    if (nextBtn) nextBtn.onclick = (e) => navigate(1, e);
+
+    // Swipe Logic
+    let startX = 0;
+    const swipeArea = document.getElementById('snapshotPreview');
+    if (swipeArea) {
+        const handleEnd = (endX, target) => {
+            if (target.closest('button')) return;
+            const diff = startX - endX;
+            if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
+        };
+        swipeArea.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, {passive: true});
+        swipeArea.addEventListener('touchend', (e) => { handleEnd(e.changedTouches[0].clientX, e.target); }, {passive: true});
+        swipeArea.addEventListener('mousedown', (e) => { startX = e.clientX; });
+        swipeArea.addEventListener('mouseup', (e) => { handleEnd(e.clientX, e.target); });
+    }
+
+    // Force initial sync
+    if (window.updateProfileList) window.updateProfileList();
+});

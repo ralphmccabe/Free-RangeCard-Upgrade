@@ -406,10 +406,23 @@
                     <div id="noSelection" class="absolute inset-0 flex flex-col items-center justify-center text-center"><p class="text-gray-600 font-mono text-xs uppercase tracking-widest">Load record</p></div>
                     <div id="profilePreview" class="absolute inset-0 flex flex-col hidden z-10">
                         <div class="p-5 bg-black/60 border-b border-gray-800 flex justify-between items-center">
-                            <h3 id="previewName" class="text-2xl font-black text-white truncate uppercase">---</h3>
+                            <div class="flex items-center gap-3">
+                                <h3 id="previewName" class="text-xl font-black text-white truncate uppercase max-w-[150px] lg:max-w-none">---</h3>
+                                <span id="galleryCounter" class="text-[10px] font-mono text-black bg-neon-green px-2 py-0.5 rounded shadow-sm uppercase font-bold hidden">Card 1 of 1</span>
+                            </div>
                             <div class="flex gap-4"><button id="viewImageBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Report</button><button id="viewDataBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Data</button></div>
                         </div>
-                        <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center p-4"><img id="prevImage" src="" class="shadow-2xl border border-gray-700 bg-white" alt="Snapshot"></div>
+                        <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center p-4 relative group">
+                            <!-- Swipe Navigation Overlay -->
+                            <button id="prevProfileBtn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center border border-neon-green/30 shadow-lg z-20 active:bg-neon-green active:text-black hover:bg-neon-green/20 transition-all">
+                                <i data-lucide="chevron-left" class="w-8 h-8"></i>
+                            </button>
+                            <button id="nextProfileBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center border border-neon-green/30 shadow-lg z-20 active:bg-neon-green active:text-black hover:bg-neon-green/20 transition-all">
+                                <i data-lucide="chevron-right" class="w-8 h-8"></i>
+                            </button>
+
+                            <img id="prevImage" src="" class="shadow-2xl border border-gray-700 bg-white max-w-full max-h-full object-contain" alt="Snapshot">
+                        </div>
                         
                         <!-- NEW VISIBLE DATA PREVIEW -->
                         <div id="dataPreview" class="flex-1 overflow-y-auto hidden p-6 space-y-6 custom-scrollbar text-white">
