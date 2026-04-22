@@ -74,6 +74,10 @@
                         <button id="colorCycleBtn" aria-label="Cycle theme color" class="col-span-2 bg-blue-950/20 border border-blue-900 rounded p-2 text-xs font-bold text-blue-400 uppercase flex items-center justify-center gap-2 hover:bg-blue-900/40">
                             <i data-lucide="palette" class="w-4 h-4"></i> CHANGE FLAVOR
                         </button>
+                        <!-- INSERTED NEW DOWNLOAD BUTTON HERE -->
+                        <button id="quickDownloadBtn" aria-label="Download Card Image" class="col-span-2 bg-emerald-950/20 border border-emerald-900 rounded p-2 text-xs font-bold text-emerald-400 uppercase flex items-center justify-center gap-2 hover:bg-emerald-900/40">
+                            <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD RANGE CARD
+                        </button>
                     </div>
                 </div>
 
@@ -510,6 +514,19 @@
             navigator.serviceWorker.addEventListener('controllerchange', () => { if (!refreshing) { refreshing = true; window.location.reload(); } });
         }
         function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }
+    </script>
+    <!-- ADDED SCRIPT BLOCK TO MAKE THE NEW BUTTON WORK -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quickBtn = document.getElementById('quickDownloadBtn');
+            const mainBtn = document.getElementById('downloadBtn');
+            if (quickBtn && mainBtn) {
+                quickBtn.addEventListener('click', () => {
+                    // This triggers your existing download function
+                    mainBtn.click();
+                });
+            }
+        });
     </script>
 </body>
 </html>
