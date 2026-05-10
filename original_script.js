@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'header-notes', 'shooter-name', 'date', 'time', 'caliber', 'zero', 'barrel', 'bullet', 'load', 'powder',
         'primer', 'col', 'rings', 'velocity', 'g1', 'weather', 'targetSize', 'groupSize', 'elevation', 'hold-data', 'final-dope',
         'rifle-notes', 'wind-notes', 'scope-notes', 'shooting-angle', 'direction-notes', 'lrf-notes', 'compass-range',
-        'shooting-angle-2', 'compass-range-2', 'shooting-angle-3', 'compass-range-3'
+        'compass-range-2'
     ];
 
     // Generate Distance Table Rows and collect their Input IDs
@@ -93,6 +93,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === 3. Canvas Logic (Shots & Holds) ===
+    function calculateGroupMetrics(points) {
+        if (points.length < 5) return null;
+        let minSpread = Infinity;
+        let bestSubset = [];
+        const n = points.length;
+
+        // Combinations generator of size 5
+        for (let i = 0; i < (1 << n); i++) {
+            let subset = [];
+            for (let j = 0; j < n; j++) {
+                if ((i & (1 << j)) !== 0) subset.push(points[j]);
+            }
+            if (subset.length === 5) {
+                let maxDist = 0;
+                for (let a = 0; a < 5; a++) {
+                    for (let b = a + 1; b < 5; b++) {
+                        const dx = subset[a].nx - subset[b].nx;
+                        const dy = subset[a].ny - subset[b].ny;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist > maxDist) maxDist = dist;
+                    }
+                }
+                if (maxDist < minSpread) {
+                    minSpread = maxDist;
+                    bestSubset = subset;
+                }
+            }
+        }
+        return { minSpread, bestSubset };
+    }
+
     // Unified target canvas initialization with mirroring
     function initTargetCanvases(desktopId, mobileId, type, clearBtnId) {
         const dCanvas = document.getElementById(desktopId);
@@ -140,28 +171,85 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.beginPath(); ctx.arc(centerX, centerY, 4, 0, Math.PI * 2); ctx.fill();
                 }
 
-                shots.forEach(shot => {
-                    ctx.fillStyle = '#ef4444';
-                    // Plot normalized to the specific canvas size
-                    ctx.beginPath();
-                    ctx.arc(shot.nx * width, shot.ny * height, 3, 0, Math.PI * 2);
-                    ctx.fill();
+                shots.forEach((shot, index) => {
+                    const x = shot.nx * width;
+                    const y = shot.ny * height;
+                    
+                    if (index === 0 && type === 'shot') {
+                        // COLD BORE SHOT (Shot #1) in Blue
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+                        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke();
+                    } else {
+                        // Standard Shots in Theme Red
+                        ctx.fillStyle = '#ef4444';
+                        ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
+                    }
+
+                    // Number above shot
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 8px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(index + 1, x, y - 6);
                 });
+
+                // TIGHTEST 5-SHOT GROUP ANALYZER & OVERLAY
+                if (type === 'shot' && shots.length >= 5) {
+                    const metrics = calculateGroupMetrics(shots);
+                    if (metrics) {
+                        const moa = (metrics.minSpread * 10).toFixed(2);
+                        let gradeText = '🥉 C-CLASS RECRUIT';
+                        if (moa < 0.5) gradeText = '👑 S-CLASS SNIPER';
+                        else if (moa < 1.0) gradeText = '🥇 A-CLASS EXPERT';
+                        else if (moa < 1.5) gradeText = '🥈 B-CLASS MARKSMAN';
+
+                        // Draw best 5-shot subset connect lines (subtle overlay)
+                        ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([2, 2]);
+                        ctx.beginPath();
+                        metrics.bestSubset.forEach((pt, i) => {
+                            const px = pt.nx * width;
+                            const py = pt.ny * height;
+                            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                        });
+                        ctx.closePath();
+                        ctx.stroke();
+                        ctx.setLineDash([]); // Reset line dash
+
+                        // Update HUD display
+                        const moaEl = document.getElementById('best-group-moa');
+                        const gradeEl = document.getElementById('shooter-grade');
+                        const hudEl = document.getElementById('shot-metrics-hud');
+                        if (moaEl) moaEl.textContent = moa;
+                        if (gradeEl) {
+                            gradeEl.textContent = gradeText;
+                        }
+                        if (hudEl) hudEl.classList.remove('hidden');
+                    }
+                } else if (type === 'shot') {
+                    const hudEl = document.getElementById('shot-metrics-hud');
+                    if (hudEl) hudEl.classList.add('hidden');
+                }
             });
         }
 
         const handlePointer = (e) => {
-            // Prevent phantom dots: Only trigger on actual click/tap, not scroll/touch
             const rect = e.currentTarget.getBoundingClientRect();
             const nx = (e.clientX - rect.left) / rect.width;
             const ny = (e.clientY - rect.top) / rect.height;
 
-            if (e.button === 2) shots.pop(); else shots.push({ nx, ny });
+            if (e.button === 2) {
+                shots.pop();
+            } else if (shots.length < 20) {
+                shots.push({ nx, ny });
+            }
             drawAll();
         };
 
         [dCanvas, mCanvas].forEach(canvas => {
-            // Use 'click' instead of 'pointerdown' for better mobile stability
+            canvas.getShots = () => shots;
+            canvas.setShots = (newShots) => { shots = newShots; drawAll(); };
             canvas.addEventListener('click', handlePointer);
             canvas.addEventListener('contextmenu', e => e.preventDefault());
         });
@@ -210,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Clear Canvases by triggering clicks on existing clear buttons
-                ['clear-hold-btn', 'clear-shot-btn', 'clear-pencil'].forEach(id => {
+                ['clear-hold-btn', 'clear-shot-btn', 'clear-pencil', 'clear-grade'].forEach(id => {
                     const btn = document.getElementById(id);
                     if (btn) btn.click();
                 });
@@ -226,7 +314,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    window.getProfiles = function() { return JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}'); };
+    window.loadedProfilesCache = {};
+    let currentLibraryFilter = 'all';
+
+    window.getProfiles = function() { return window.loadedProfilesCache || {}; };
+
+    if (window.TRC_IDB) {
+        window.TRC_IDB.migrateFromLocalStorage().then(() => {
+            return window.TRC_IDB.getAll('rangeCardProfiles');
+        }).then(profiles => {
+            window.loadedProfilesCache = profiles || {};
+            if (window.updateProfileList) window.updateProfileList();
+        }).catch(err => {
+            console.error("IDB load failed, falling back to localStorage:", err);
+            window.loadedProfilesCache = JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}');
+            if (window.updateProfileList) window.updateProfileList();
+        });
+    } else {
+        window.loadedProfilesCache = JSON.parse(localStorage.getItem('rangeCardProfiles') || '{}');
+    }
 
     window.updateProfileList = function() {
         const ps = getProfiles();
@@ -235,7 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Library List
         if (libraryList) libraryList.innerHTML = '';
 
-        const names = Object.keys(ps).sort().reverse();
+        let names = Object.keys(ps).sort().reverse();
+        if (currentLibraryFilter === 'zero') {
+            names = names.filter(name => !ps[name].isReconScenario);
+        } else if (currentLibraryFilter === 'recon') {
+            names = names.filter(name => !!ps[name].isReconScenario);
+        }
         names.forEach((name, index) => {
             // Dropdown
             const opt = document.createElement('option');
@@ -253,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="min-w-0">
                                 <div class="font-bold text-sm text-gray-200 truncate pr-4 group-hover:text-white">${name}</div>
                                 <div class="text-[9px] text-gray-400 font-mono uppercase mt-1">
-                                    ${ps[name].caliber || 'No Caliber'} • ${ps[name].date || '--'}
+                                    ${ps[name].isReconScenario ? '🗺️ RECON SITREP' : (ps[name].caliber || 'No Caliber')} • ${ps[name].isReconScenario ? (ps[name].timestamp ? new Date(ps[name].timestamp).toLocaleDateString() : '--') : (ps[name].date || '--')}
                                 </div>
                             </div>
                         </div>
@@ -358,15 +469,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Actions
         document.getElementById('loadSelectedBtn').onclick = () => {
             loadProfile(name);
-            closeLibrary();
+            window.closeLibrary();
         };
         document.getElementById('deleteSelectedBtn').onclick = () => {
             if (confirm(`Trash record "${name}"?`)) {
                 const ps_new = getProfiles();
                 delete ps_new[name];
-                localStorage.setItem('rangeCardProfiles', JSON.stringify(ps_new));
-                updateProfileList();
-                resetPreview();
+                if (window.TRC_IDB) {
+                    window.TRC_IDB.delete('rangeCardProfiles', name).then(() => {
+                        updateProfileList();
+                        resetPreview();
+                    }).catch(err => {
+                        console.error("IDB delete failed:", err);
+                        updateProfileList();
+                        resetPreview();
+                    });
+                } else {
+                    localStorage.setItem('rangeCardProfiles', JSON.stringify(ps_new));
+                    updateProfileList();
+                    resetPreview();
+                }
             }
         };
     }
@@ -381,6 +503,87 @@ document.addEventListener('DOMContentLoaded', () => {
         const ps = getProfiles();
         const data = ps[name];
         if (!data) return;
+
+        if (data.isReconScenario) {
+            const toggleBtn = document.getElementById('toggleReconMapperBtn');
+            const isCurrentlyActive = toggleBtn && toggleBtn.textContent.includes('BACK TO RANGE CARD');
+            if (!isCurrentlyActive && toggleBtn) {
+                toggleBtn.click();
+            }
+
+            const rScenarioInput = document.getElementById('recon-scenario-name');
+            const rReportInput = document.getElementById('recon-report');
+            
+            if (rScenarioInput) {
+                rScenarioInput.value = data.name || '';
+                rScenarioInput.dispatchEvent(new Event('input'));
+            }
+            if (rReportInput) {
+                rReportInput.value = data.report || '';
+                rReportInput.dispatchEvent(new Event('input'));
+            }
+
+            const rBgImage = document.getElementById('recon-bg-image');
+            const rDefaultGrid = document.getElementById('recon-default-grid');
+            const mBgImage = document.getElementById('mobile-recon-bg-image');
+            const mDefaultGrid = document.getElementById('mobile-recon-default-grid');
+
+            if (rBgImage) {
+                if (data.bgImage) {
+                    rBgImage.src = data.bgImage;
+                    rBgImage.classList.remove('hidden');
+                    if (rDefaultGrid) rDefaultGrid.classList.add('hidden');
+                    if (mBgImage) {
+                        mBgImage.src = data.bgImage;
+                        mBgImage.classList.remove('hidden');
+                    }
+                    if (mDefaultGrid) mDefaultGrid.classList.add('hidden');
+                } else {
+                    rBgImage.classList.add('hidden');
+                    rBgImage.src = '';
+                    if (rDefaultGrid) rDefaultGrid.classList.remove('hidden');
+                    if (mBgImage) {
+                        mBgImage.classList.add('hidden');
+                        mBgImage.src = '';
+                    }
+                    if (mDefaultGrid) mDefaultGrid.classList.remove('hidden');
+                }
+            }
+
+            document.querySelectorAll('.recon-marker').forEach(m => m.remove());
+            if (data.markers && Array.isArray(data.markers)) {
+                data.markers.forEach(m => {
+                    if (typeof window.createMarker === 'function') {
+                        window.createMarker(m.x, m.y, m.emoji, m.note || '');
+                    }
+                });
+            }
+
+            const rCanvas = document.getElementById('recon-canvas');
+            const mCanvas = document.getElementById('mobile-recon-canvas');
+
+            if (rCanvas) {
+                const rCtx = rCanvas.getContext('2d');
+                const mCtx = mCanvas ? mCanvas.getContext('2d') : null;
+                rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+                if (mCtx) mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+                if (data.drawing) {
+                    const img = new Image();
+                    img.onload = () => {
+                        rCtx.drawImage(img, 0, 0);
+                        if (mCtx) mCtx.drawImage(img, 0, 0);
+                    };
+                    img.src = data.drawing;
+                }
+            }
+            return;
+        }
+
+        const toggleBtn = document.getElementById('toggleReconMapperBtn');
+        const isCurrentlyActive = toggleBtn && toggleBtn.textContent.includes('BACK TO RANGE CARD');
+        if (isCurrentlyActive && toggleBtn) {
+            toggleBtn.click();
+        }
         inputs.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -389,17 +592,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         profileSelect.value = name;
+
+        // Restore interactive clicked coordinates and redraw them instantly!
+        const canvasShot = document.getElementById('canvas-shot');
+        const canvasHold = document.getElementById('canvas-hold');
+        if (canvasShot && canvasShot.setShots) canvasShot.setShots(data.shotPoints || []);
+        if (canvasHold && canvasHold.setShots) canvasHold.setShots(data.holdPoints || []);
+
+        // Restore pencil and grade drawings onto both desktop and mobile canvases
+        ['pencil-canvas', 'mobile-pencil-canvas'].forEach(id => {
+            const canvas = document.getElementById(id);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (data.pencilDrawing) {
+                    const img = new Image();
+                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.src = data.pencilDrawing;
+                }
+            }
+        });
+        ['grade-canvas', 'mobile-grade-canvas'].forEach(id => {
+            const canvas = document.getElementById(id);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (data.gradeDrawing) {
+                    const img = new Image();
+                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.src = data.gradeDrawing;
+                }
+            }
+        });
     }
 
-    function openLibrary() {
+    window.openLibrary = function() {
         libraryModal.classList.remove('hidden');
-        updateProfileList();
+        const modalTitle = document.getElementById('libraryModalTitle');
+        if (modalTitle) {
+            if (currentLibraryFilter === 'zero') {
+                modalTitle.textContent = 'ZERO-CARD REPOSITORY';
+            } else if (currentLibraryFilter === 'recon') {
+                modalTitle.textContent = 'RECON SITREP REPOSITORY';
+            } else {
+                modalTitle.textContent = 'REPOSITORY';
+            }
+        }
+        window.updateProfileList();
         resetPreview();
-    }
-    function closeLibrary() { libraryModal.classList.add('hidden'); }
+    };
+    window.closeLibrary = function() { libraryModal.classList.add('hidden'); };
 
-    openLibraryBtn.onclick = openLibrary;
-    closeLibraryBtn.onclick = closeLibrary;
+    openLibraryBtn.onclick = () => {
+        currentLibraryFilter = 'zero';
+        window.openLibrary();
+    };
+    closeLibraryBtn.onclick = window.closeLibrary;
 
     saveProfileBtn.onclick = () => {
         const name = prompt("Enter profile name to save tactical record:");
@@ -455,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.style.transform = originalTransform;
                 window.scrollTo(0, originalScrollY);
 
-                const snapshot = canvas.toDataURL("image/png");
+                const snapshot = canvas.toDataURL("image/jpeg", 0.7);
                 const data = { snapshot };
 
                 inputs.forEach(id => {
@@ -463,12 +711,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (el) data[id] = el.value;
                 });
 
+                // Read and save interactive canvas coordinates
+                const canvasShot = document.getElementById('canvas-shot');
+                const canvasHold = document.getElementById('canvas-hold');
+                if (canvasShot && canvasShot.getShots) data.shotPoints = canvasShot.getShots();
+                if (canvasHold && canvasHold.getShots) data.holdPoints = canvasHold.getShots();
+
+                // Save drawings as data URLs
+                const pCanvas = document.getElementById('pencil-canvas');
+                const gCanvas = document.getElementById('grade-canvas');
+                if (pCanvas) data.pencilDrawing = pCanvas.toDataURL();
+                if (gCanvas) data.gradeDrawing = gCanvas.toDataURL();
+
                 const ps = getProfiles();
                 ps[name] = data;
-                localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
+                
+                const postSave = () => {
+                    currentLibraryFilter = 'zero';
+                    window.openLibrary();
+                    window.previewProfile(name);
+                };
 
-                openLibrary();
-                previewProfile(name);
+                if (window.TRC_IDB) {
+                    window.TRC_IDB.set('rangeCardProfiles', name, data).then(() => {
+                        postSave();
+                    }).catch(err => {
+                        console.error("IDB save failed, falling back to localStorage:", err);
+                        localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
+                        postSave();
+                    });
+                } else {
+                    localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
+                    postSave();
+                }
             }).catch(err => {
                 document.body.classList.remove('is-capturing');
                 previewPanel.style.transition = originalTransition;
@@ -490,9 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileCompassCanvas = document.getElementById('mobile-compass-vector'); // NEW
 
     const targetConfigs = [
-        { angleId: 'shooting-angle', rangeId: 'compass-range' },
-        { angleId: 'shooting-angle-2', rangeId: 'compass-range-2' },
-        { angleId: 'shooting-angle-3', rangeId: 'compass-range-3' }
+        { angleId: 'shooting-angle', rangeId: 'compass-range' }
     ];
 
     window.drawCompassVector = function () {
@@ -556,30 +829,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.font = 'bold 8px Inter, sans-serif';
                     ctx.textBaseline = 'middle';
 
-                    // User Request: Alternate sides (T1 left, T2 right, T3 left)
-                    let textAlign = (index === 1) ? 'left' : 'right';
+                    // Base positioning relative to X marker (index 0 is T1, index 1 is Location/T2)
+                    let baseAlign = (index === 1) ? 'left' : 'right';
                     let labelX = (index === 1) ? ex + 10 : ex - 10;
                     let labelY = ey;
 
                     // Small vertical stagger to prevent overlap if angles are identical
                     if (index === 0) labelY -= 8;
-                    if (index === 2) labelY += 8;
 
                     // Measure text to draw a small background for legibility
                     const metrics = ctx.measureText(txt);
                     const padding = 2;
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                    const bgWidth = metrics.width + (padding * 2);
+                    const bgHeight = 10;
 
+                    // Calculate initial background left (X) coordinate based on alignment
                     let bgX = labelX;
-                    if (textAlign === 'right') bgX -= metrics.width;
-                    if (textAlign === 'center') bgX -= metrics.width / 2;
+                    if (baseAlign === 'right') bgX -= metrics.width;
+                    let bgY = labelY - 5;
 
-                    ctx.fillRect(bgX - padding, labelY - 5, metrics.width + (padding * 2), 10);
+                    // BULLETPROOF BOUNDARY CLAMPING: Prevent text/background from running off the canvas
+                    bgX = Math.max(12, Math.min(bgX, width - bgWidth - 12));
+                    bgY = Math.max(12, Math.min(bgY, height - bgHeight - 12));
 
-                    // Draw the text
-                    ctx.textAlign = textAlign;
+                    // Draw background rectangle
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                    ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+
+                    // Draw the text perfectly aligned inside the clamped background
+                    ctx.textAlign = 'left';
                     ctx.fillStyle = '#1e3a8a';
-                    ctx.fillText(txt, labelX, labelY);
+                    ctx.fillText(txt, bgX + padding, bgY + 5);
                 }
             });
         });
@@ -634,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
             canvases.forEach((canvas, idx) => {
                 const pCtx = contexts[idx];
                 pCtx.beginPath();
-                pCtx.lineWidth = 1.5;
+                pCtx.lineWidth = 1.0;
                 pCtx.lineCap = 'round';
                 pCtx.strokeStyle = '#6b7280';
 
@@ -679,9 +959,111 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === 7. Download ===
+    // === 6b. Grade Tool ===
+    const gradeCanvases = [
+        document.getElementById('grade-canvas'),
+        document.getElementById('mobile-grade-canvas')
+    ].filter(canvas => canvas !== null);
+
+    const gradeToggle = document.getElementById('grade-toggle');
+
+    if (gradeCanvases.length > 0 && gradeToggle) {
+        const gradeContexts = gradeCanvases.map(c => c.getContext('2d'));
+        let gradeDrawing = false;
+
+        // Mutual exclusion: Checking Grade Tool unchecks Pencil Tool
+        gradeToggle.addEventListener('change', (e) => {
+            if (e.target.checked && pencilToggle) {
+                pencilToggle.checked = false;
+                pencilToggle.dispatchEvent(new Event('change'));
+            }
+            gradeCanvases.forEach(canvas => {
+                canvas.classList.toggle('pointer-events-none', !e.target.checked);
+                canvas.style.cursor = e.target.checked ? 'crosshair' : 'default';
+            });
+        });
+
+        // Mutual exclusion: Checking Pencil Tool unchecks Grade Tool
+        if (pencilToggle) {
+            pencilToggle.addEventListener('change', (e) => {
+                if (e.target.checked && gradeToggle) {
+                    gradeToggle.checked = false;
+                    gradeToggle.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        const getNormalizedPos = (e, canvas) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                nx: (clientX - rect.left) / rect.width,
+                ny: (clientY - rect.top) / rect.height
+            };
+        };
+
+        const startGrade = (e) => {
+            if (!gradeToggle.checked) return;
+            if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+
+            gradeDrawing = true;
+            const { nx, ny } = getNormalizedPos(e, e.currentTarget);
+
+            gradeCanvases.forEach((canvas, idx) => {
+                const gCtx = gradeContexts[idx];
+                gCtx.beginPath();
+                gCtx.lineWidth = 1.0;
+                gCtx.lineCap = 'round';
+                gCtx.strokeStyle = '#ef4444'; // Red color
+
+                gCtx.moveTo(nx * canvas.width, ny * canvas.height);
+            });
+        };
+
+        const moveGrade = (e) => {
+            if (!gradeDrawing) return;
+            if (e.type === 'touchmove' && e.cancelable) e.preventDefault();
+
+            const { nx, ny } = getNormalizedPos(e, e.currentTarget);
+
+            gradeCanvases.forEach((canvas, idx) => {
+                const gCtx = gradeContexts[idx];
+                gCtx.lineTo(nx * canvas.width, ny * canvas.height);
+                gCtx.stroke();
+            });
+        };
+
+        const stopGrade = () => {
+            if (!gradeDrawing) return;
+            gradeContexts.forEach(ctx => ctx.closePath());
+            gradeDrawing = false;
+        };
+
+        gradeCanvases.forEach(canvas => {
+            ['mousedown', 'touchstart'].forEach(ev => canvas.addEventListener(ev, startGrade, { passive: false }));
+            ['mousemove', 'touchmove'].forEach(ev => canvas.addEventListener(ev, moveGrade, { passive: false }));
+            ['mouseup', 'mouseleave', 'touchend'].forEach(ev => canvas.addEventListener(ev, stopGrade, { passive: false }));
+        });
+
+        document.getElementById('clear-grade').addEventListener('click', () => {
+            if (confirm('Clear all grade drawings?')) {
+                gradeContexts.forEach((gCtx, i) => {
+                    gCtx.clearRect(0, 0, gradeCanvases[i].width, gradeCanvases[i].height);
+                });
+            }
+        });
+    }
+
     document.getElementById('downloadBtn').addEventListener('click', () => {
-        const container = document.getElementById('card-container');
+        const isReconActive = !document.getElementById('recon-card-container').classList.contains('hidden');
+        
+        // Restore workspace to desktop for correct capture
+        if (isReconActive && typeof restoreWorkspaceToDesktop === 'function') {
+            restoreWorkspaceToDesktop();
+        }
+
+        const container = isReconActive ? document.getElementById('recon-card-container') : document.getElementById('card-container');
         const previewPanel = document.getElementById('previewPanel');
 
         const originalTransform = container.style.transform;
@@ -746,6 +1128,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.style.transform = originalTransform;
                 window.scrollTo(0, originalScrollY);
 
+                // Portal back to mobile if active
+                if (isReconActive && typeof syncReconPortal === 'function') {
+                    syncReconPortal();
+                }
+
                 const link = document.createElement('a');
                 link.download = `RangeCard-${document.getElementById('date').value || 'export'}.png`;
                 link.href = canvas.toDataURL("image/png");
@@ -763,6 +1150,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 container.style.transform = originalTransform;
                 window.scrollTo(0, originalScrollY);
+
+                // Portal back to mobile if active
+                if (isReconActive && typeof syncReconPortal === 'function') {
+                    syncReconPortal();
+                }
+
                 console.error("Download capture failure:", err);
                 alert("Download failed. See console.");
             });
@@ -810,13 +1203,30 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Stealth Gray", hex: "#94a3b8", rgb: "148, 163, 184" },
         { name: "Desert Sand", hex: "#d97706", rgb: "217, 119, 6" },
         { name: "Plasma Pink", hex: "#ec4899", rgb: "236, 72, 153" },
-        { name: "Nuclear Lime", hex: "#84cc16", rgb: "132, 204, 22" }
+        { name: "Nuclear Lime", hex: "#84cc16", rgb: "132, 204, 22" },
+        // 10 Tactical Camouflage Flavors added by Antigravity
+        { name: "MultiCam OCP", hex: "#8c7d55", rgb: "140, 125, 85" },
+        { name: "Woodland M81", hex: "#3f5c35", rgb: "63, 92, 53" },
+        { name: "Coyote Brown", hex: "#876445", rgb: "135, 100, 69" },
+        { name: "Flat Dark Earth (FDE)", hex: "#bfa16f", rgb: "191, 161, 111" },
+        { name: "Olive Drab Green (OD)", hex: "#556b2f", rgb: "85, 107, 47" },
+        { name: "Tiger Stripe", hex: "#4a5340", rgb: "74, 83, 64" },
+        { name: "Urban Digital", hex: "#5a6268", rgb: "90, 98, 104" },
+        { name: "Typhon Charcoal", hex: "#343a40", rgb: "52, 58, 64" },
+        { name: "Arctic White", hex: "#e9ecef", rgb: "233, 236, 239" },
+        { name: "Navy Seal Gray", hex: "#495057", rgb: "73, 80, 87" },
+        // Standard White added for basic users who want no colored borders
+        { name: "Standard White", hex: "#ffffff", rgb: "255, 255, 255" }
     ];
 
     function applyFlavor(index) {
         const flavor = flavors[index];
         document.documentElement.style.setProperty('--accent-color', flavor.hex);
         document.documentElement.style.setProperty('--accent-rgb', flavor.rgb);
+        
+        // High-contrast tab text coloring for white backgrounds
+        const tabTextColor = flavor.hex === "#ffffff" ? "#000000" : "#ffffff";
+        document.documentElement.style.setProperty('--tab-text-color', tabTextColor);
 
         // Remove previous flavor classes
         flavors.forEach(f => {
@@ -829,6 +1239,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (colorCycleBtn) {
             colorCycleBtn.innerHTML = `<i data-lucide="palette" class="w-4 h-4"></i> Flavor: ${flavor.name}`;
+            
+            // Dynamic theme styling applied by Antigravity
+            colorCycleBtn.style.backgroundColor = `rgba(${flavor.rgb}, 0.2)`;
+            colorCycleBtn.style.borderColor = flavor.hex;
+            colorCycleBtn.style.color = flavor.hex;
+            
+            // Interactive hover feedback using the selected flavor colors
+            colorCycleBtn.onmouseenter = () => {
+                colorCycleBtn.style.backgroundColor = `rgba(${flavor.rgb}, 0.4)`;
+            };
+            colorCycleBtn.onmouseleave = () => {
+                colorCycleBtn.style.backgroundColor = `rgba(${flavor.rgb}, 0.2)`;
+            };
+            
             if (window.lucide) lucide.createIcons();
         }
 
@@ -904,6 +1328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resizeTimer = setTimeout(() => {
             // console.log("Resize detected, recalibrating layout...");
             handleResponsiveScaling();
+            if (typeof syncReconPortal === 'function') syncReconPortal();
         }, 250);
     });
 
@@ -925,6 +1350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial call
     handleResponsiveScaling();
+    if (typeof syncReconPortal === 'function') syncReconPortal();
 });
 
 function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }
@@ -1021,6 +1447,729 @@ document.addEventListener('DOMContentLoaded', () => {
         swipeArea.addEventListener('touchend', (e) => { handleEnd(e.changedTouches[0].clientX, e.target); }, {passive: true});
         swipeArea.addEventListener('mousedown', (e) => { startX = e.clientX; });
         swipeArea.addEventListener('mouseup', (e) => { handleEnd(e.clientX, e.target); });
+    }
+
+    // === AMMO LIBRARY CONTROLLER BY ANTIGRAVITY ===
+    const ammoLibraryModal = document.getElementById('ammoLibraryModal');
+    const openAmmoLibraryBtn = document.getElementById('openAmmoLibraryBtn');
+    const closeAmmoLibraryBtn = document.getElementById('closeAmmoLibraryBtn');
+    const saveAmmoProfileBtn = document.getElementById('saveAmmoProfileBtn');
+    const ammoLibraryList = document.getElementById('ammoLibraryList');
+
+    // Input elements for ammo form
+    const ammoInputs = {
+        name: document.getElementById('ammo-name'),
+        caliber: document.getElementById('ammo-caliber'),
+        bullet: document.getElementById('ammo-bullet'),
+        powder: document.getElementById('ammo-powder'),
+        primer: document.getElementById('ammo-primer'),
+        col: document.getElementById('ammo-col'),
+        velocity: document.getElementById('ammo-velocity'),
+        count: document.getElementById('ammo-count')
+    };
+
+    function getAmmoProfiles() {
+        return JSON.parse(localStorage.getItem('rangeCardAmmoProfiles') || '{}');
+    }
+
+    function saveAmmoProfiles(profiles) {
+        localStorage.setItem('rangeCardAmmoProfiles', JSON.stringify(profiles));
+    }
+
+    function updateAmmoList() {
+        if (!ammoLibraryList) return;
+        const profiles = getAmmoProfiles();
+        ammoLibraryList.innerHTML = '';
+
+        const keys = Object.keys(profiles);
+        if (keys.length === 0) {
+            ammoLibraryList.innerHTML = `
+                <div class="col-span-1 md:col-span-2 flex flex-col items-center justify-center py-12 text-center text-gray-600 font-mono text-xs uppercase tracking-wider">
+                    <i data-lucide="info" class="w-8 h-8 opacity-20 mb-2"></i>
+                    No saved ammo batches found.
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+
+        keys.forEach(key => {
+            const p = profiles[key];
+            const card = document.createElement('div');
+            card.className = "bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col justify-between hover:border-emerald-500/50 transition-all shadow-md relative";
+            card.innerHTML = `
+                <div class="space-y-2 text-left">
+                    <div class="flex justify-between items-start border-b border-gray-800 pb-2 mb-2">
+                        <div>
+                            <h4 class="text-white font-bold uppercase text-sm tracking-wide truncate max-w-[150px]">${key}</h4>
+                            <span class="text-[9px] text-emerald-400 font-mono uppercase">${p.caliber || 'General'}</span>
+                        </div>
+                        <button class="delete-ammo-btn text-red-500 hover:text-red-400 p-1 bg-black/40 hover:bg-red-950/20 rounded transition-colors" data-name="${key}">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-y-1.5 text-[10px] font-mono text-gray-400">
+                        <div class="truncate">Bullet: <span class="text-gray-200 font-bold">${p.bullet || '--'}</span></div>
+                        <div class="truncate">Powder: <span class="text-gray-200 font-bold">${p.powder || '--'}</span></div>
+                        <div class="truncate">Primer: <span class="text-gray-200 font-bold">${p.primer || '--'}</span></div>
+                        <div class="truncate">C.O.L: <span class="text-gray-200 font-bold">${p.col || '--'}</span></div>
+                        <div class="truncate col-span-2">Velocity: <span class="text-gray-200 font-bold">${p.velocity || '--'} FPS</span></div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-gray-800 flex items-center justify-between gap-4">
+                    <!-- Adjustment Counter -->
+                    <div class="flex items-center gap-1.5 bg-black/40 p-1 rounded border border-gray-800">
+                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="-5">-5</button>
+                        <span class="text-white font-black text-xs px-2 min-w-[32px] text-center">${p.count || '0'} rds</span>
+                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="5">+5</button>
+                    </div>
+                    
+                    <button class="load-ammo-btn bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-[10px] uppercase font-bold py-1.5 px-3 rounded hover:bg-emerald-600/40 transition-colors" data-name="${key}">
+                        Load to Card
+                    </button>
+                </div>
+            `;
+            ammoLibraryList.appendChild(card);
+        });
+
+        // Add event listeners inside list
+        document.querySelectorAll('.delete-ammo-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const name = btn.getAttribute('data-name');
+                if (confirm(`Delete ammo profile "${name}"?`)) {
+                    const profiles = getAmmoProfiles();
+                    delete profiles[name];
+                    saveAmmoProfiles(profiles);
+                    updateAmmoList();
+                }
+            };
+        });
+
+        document.querySelectorAll('.adjust-ammo-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const name = btn.getAttribute('data-name');
+                const amt = parseInt(btn.getAttribute('data-amount')) || 0;
+                const profiles = getAmmoProfiles();
+                if (profiles[name]) {
+                    profiles[name].count = Math.max(0, (parseInt(profiles[name].count) || 0) + amt);
+                    saveAmmoProfiles(profiles);
+                    updateAmmoList();
+                }
+            };
+        });
+
+        document.querySelectorAll('.load-ammo-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const name = btn.getAttribute('data-name');
+                const profiles = getAmmoProfiles();
+                const p = profiles[name];
+                if (p) {
+                    // Populate inputs in range-card form
+                    if (p.caliber) document.getElementById('caliber').value = p.caliber;
+                    if (p.bullet) document.getElementById('bullet').value = p.bullet;
+                    if (p.powder) document.getElementById('powder').value = p.powder;
+                    if (p.primer) document.getElementById('primer').value = p.primer;
+                    if (p.col) document.getElementById('col').value = p.col;
+                    if (p.velocity) document.getElementById('velocity').value = p.velocity;
+
+                    // Manually trigger input events to sync display card
+                    ['caliber', 'bullet', 'powder', 'primer', 'col', 'velocity'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.dispatchEvent(new Event('input'));
+                    });
+
+                    alert(`Loaded specifications for "${name}" into card!`);
+                    if (ammoLibraryModal) ammoLibraryModal.classList.add('hidden');
+                }
+            };
+        });
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    if (openAmmoLibraryBtn && ammoLibraryModal) {
+        openAmmoLibraryBtn.onclick = () => {
+            ammoLibraryModal.classList.remove('hidden');
+            updateAmmoList();
+        };
+    }
+
+    if (closeAmmoLibraryBtn && ammoLibraryModal) {
+        closeAmmoLibraryBtn.onclick = () => {
+            ammoLibraryModal.classList.add('hidden');
+        };
+    }
+
+    if (saveAmmoProfileBtn) {
+        saveAmmoProfileBtn.onclick = () => {
+            const name = ammoInputs.name.value.trim();
+            if (!name) {
+                alert("Please enter a load/batch name.");
+                return;
+            }
+
+            const profiles = getAmmoProfiles();
+            profiles[name] = {
+                caliber: ammoInputs.caliber.value.trim(),
+                bullet: ammoInputs.bullet.value.trim(),
+                powder: ammoInputs.powder.value.trim(),
+                primer: ammoInputs.primer.value.trim(),
+                col: ammoInputs.col.value.trim(),
+                velocity: ammoInputs.velocity.value.trim(),
+                count: parseInt(ammoInputs.count.value) || 0
+            };
+
+            saveAmmoProfiles(profiles);
+            updateAmmoList();
+
+            // Clear inputs
+            Object.values(ammoInputs).forEach(input => {
+                if (input) input.value = '';
+            });
+
+            alert(`Successfully saved batch "${name}" to Ammo Library!`);
+        };
+    }
+
+    // === 10. Tactical Recon Mapper ===
+    let isReconActive = false;
+    let selectedEmoji = null;
+    const toggleReconMapperBtn = document.getElementById('toggleReconMapperBtn');
+    const normalSidebarView = document.getElementById('normal-sidebar-view');
+    const reconSidebarView = document.getElementById('recon-sidebar-view');
+    const normalCardContainer = document.getElementById('card-container');
+    const reconCardContainer = document.getElementById('recon-card-container');
+
+    function syncReconPortal() {
+        const normalMobilePreview = document.getElementById('mobile-live-preview-complete');
+        const reconMobilePreview = document.getElementById('mobile-recon-preview-complete');
+        
+        if (isReconActive) {
+            if (reconMobilePreview) reconMobilePreview.classList.remove('hidden');
+            if (normalMobilePreview) normalMobilePreview.classList.add('hidden');
+            
+            // Sync labels to the mobile stacked form
+            const titleLabel = document.getElementById('mobile-display-recon-title-label');
+            const reportLabel = document.getElementById('mobile-display-recon-report-label');
+            const timestampLabel = document.getElementById('mobile-display-recon-timestamp-label');
+            
+            if (titleLabel) titleLabel.textContent = document.getElementById('display-recon-title').textContent;
+            if (reportLabel) reportLabel.textContent = document.getElementById('display-recon-report').textContent;
+            if (timestampLabel) timestampLabel.textContent = document.getElementById('display-recon-timestamp').textContent;
+        } else {
+            if (reconMobilePreview) reconMobilePreview.classList.add('hidden');
+            if (normalMobilePreview) normalMobilePreview.classList.remove('hidden');
+        }
+    }
+    window.syncReconPortal = syncReconPortal;
+    
+    if (toggleReconMapperBtn) {
+        toggleReconMapperBtn.addEventListener('click', () => {
+            isReconActive = !isReconActive;
+            if (isReconActive) {
+                toggleReconMapperBtn.innerHTML = '<i data-lucide="crosshair" class="w-4 h-4"></i> BACK TO RANGE CARD';
+                toggleReconMapperBtn.classList.replace('bg-indigo-950/40', 'bg-emerald-950/40');
+                toggleReconMapperBtn.classList.replace('border-indigo-500', 'border-emerald-500');
+                toggleReconMapperBtn.classList.replace('text-indigo-400', 'text-emerald-400');
+                
+                normalSidebarView.classList.add('hidden');
+                reconSidebarView.classList.remove('hidden');
+                normalCardContainer.classList.add('hidden');
+                reconCardContainer.classList.remove('hidden');
+            } else {
+                toggleReconMapperBtn.innerHTML = '<i data-lucide="map" class="w-4 h-4"></i> TACTICAL RECON MAPPER';
+                toggleReconMapperBtn.classList.replace('bg-emerald-950/40', 'bg-indigo-950/40');
+                toggleReconMapperBtn.classList.replace('border-emerald-500', 'border-indigo-500');
+                toggleReconMapperBtn.classList.replace('text-emerald-400', 'text-indigo-400');
+                
+                normalSidebarView.classList.remove('hidden');
+                reconSidebarView.classList.add('hidden');
+                normalCardContainer.classList.remove('hidden');
+                reconCardContainer.classList.add('hidden');
+            }
+            syncReconPortal();
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
+    // SITREP & Scenario Title Synchronizer
+    const reconScenarioName = document.getElementById('recon-scenario-name');
+    const displayReconTitle = document.getElementById('display-recon-title');
+    const reconReport = document.getElementById('recon-report');
+    const displayReconReport = document.getElementById('display-recon-report');
+    const displayReconTimestamp = document.getElementById('display-recon-timestamp');
+
+    if (reconScenarioName && displayReconTitle) {
+        reconScenarioName.addEventListener('input', () => {
+            displayReconTitle.textContent = reconScenarioName.value.trim().toUpperCase() || 'NEW SCENARIO';
+            syncReconPortal();
+        });
+    }
+    if (reconReport && displayReconReport) {
+        reconReport.addEventListener('input', () => {
+            displayReconReport.textContent = reconReport.value.trim() || 'NO SITREP FILED';
+            const now = new Date();
+            if (displayReconTimestamp) {
+                displayReconTimestamp.textContent = now.toLocaleTimeString() + " | " + now.toLocaleDateString();
+            }
+            syncReconPortal();
+        });
+    }
+
+    const mapBgUpload = document.getElementById('map-bg-upload');
+    const reconBgImage = document.getElementById('recon-bg-image');
+    const reconDefaultGrid = document.getElementById('recon-default-grid');
+
+    if (mapBgUpload && reconBgImage) {
+        mapBgUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+                    alert("Note: Apple HEIC/HEIF image formats are not natively supported by standard web browsers. Please convert your screenshot to PNG or JPG to upload successfully.");
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Update main desktop workspace background
+                    reconBgImage.src = event.target.result;
+                    reconBgImage.classList.remove('hidden');
+                    if (reconDefaultGrid) reconDefaultGrid.classList.add('hidden');
+
+                    // Update twin mobile workspace background
+                    const mobileBg = document.getElementById('mobile-recon-bg-image');
+                    const mobileGrid = document.getElementById('mobile-recon-default-grid');
+                    if (mobileBg) {
+                        mobileBg.src = event.target.result;
+                        mobileBg.classList.remove('hidden');
+                    }
+                    if (mobileGrid) mobileGrid.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Emoji Marker Placement & Management
+    const emojiButtons = document.querySelectorAll('.emoji-btn');
+    const workspace = document.getElementById('recon-map-workspace');
+
+    emojiButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            emojiButtons.forEach(b => b.classList.remove('border-neon-green', 'bg-gray-800'));
+            if (selectedEmoji === btn.dataset.emoji) {
+                selectedEmoji = null;
+            } else {
+                selectedEmoji = btn.dataset.emoji;
+                btn.classList.add('border-neon-green', 'bg-gray-800');
+                
+                // SPARK OF TOUCHSCREEN GENIUS: Spawn the marker at 50%, 50% automatically!
+                if (typeof createMarker === 'function') {
+                    createMarker(50, 50, selectedEmoji, '');
+                }
+            }
+        });
+    });
+
+    if (workspace) {
+        workspace.addEventListener('click', (e) => {
+            if (e.target !== workspace && e.target.id !== 'recon-canvas' && e.target.id !== 'recon-default-grid') return;
+            if (!selectedEmoji) return;
+            
+            const drawToggle = document.getElementById('recon-pencil-toggle');
+            if (drawToggle && drawToggle.checked) return;
+
+            const rect = workspace.getBoundingClientRect();
+            const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+            const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+            createMarker(clickX, clickY, selectedEmoji, '');
+        });
+    }
+
+    function createSingleMarker(x, y, emoji, note, isMobileTwin = false) {
+        const targetWorkspace = isMobileTwin 
+            ? document.getElementById('mobile-recon-map-workspace') 
+            : document.getElementById('recon-map-workspace');
+        if (!targetWorkspace) return null;
+
+        const marker = document.createElement('div');
+        marker.className = 'absolute select-none cursor-move z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-1 rounded border border-emerald-500/40 hover:border-emerald-400 hover:scale-105 transition-all shadow-md recon-marker';
+        if (isMobileTwin) marker.classList.add('mobile-recon-marker');
+        marker.style.left = `${x}%`;
+        marker.style.top = `${y}%`;
+        marker.dataset.emoji = emoji;
+        marker.dataset.note = note;
+
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'text-xl filter drop-shadow-sm select-none';
+        emojiSpan.textContent = emoji;
+
+        const noteSpan = document.createElement('span');
+        noteSpan.className = 'text-[8px] font-extrabold text-white font-mono bg-emerald-950/80 border border-emerald-500/40 px-1 py-0.5 rounded uppercase leading-none tracking-wider select-none whitespace-nowrap marker-note-span';
+        noteSpan.textContent = note || 'LABEL';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'text-[12px] text-red-400 hover:text-red-300 transition-colors bg-red-950/40 border border-red-500/30 w-5 h-5 rounded flex items-center justify-center p-0 ml-1 cursor-pointer font-sans font-black';
+        deleteBtn.innerHTML = '×';
+        deleteBtn.title = 'Delete Marker';
+        
+        // Stop drag & click propagation on contact
+        deleteBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+        deleteBtn.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (confirm('Delete this marker?')) {
+                if (marker.twin) marker.twin.remove();
+                marker.remove();
+            }
+        });
+
+        marker.appendChild(emojiSpan);
+        marker.appendChild(noteSpan);
+        marker.appendChild(deleteBtn);
+
+        marker.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const newNote = prompt('Enter notes / yardage for this marker:', marker.dataset.note);
+            if (newNote !== null) {
+                const trimmed = newNote.trim();
+                marker.dataset.note = trimmed;
+                noteSpan.textContent = trimmed || 'LABEL';
+                if (marker.twin) {
+                    marker.twin.dataset.note = trimmed;
+                    const twinNoteSpan = marker.twin.querySelector('.marker-note-span');
+                    if (twinNoteSpan) twinNoteSpan.textContent = trimmed || 'LABEL';
+                }
+            }
+        });
+
+        let isDragging = false;
+
+        const dragStart = (e) => {
+            isDragging = true;
+            e.stopPropagation();
+        };
+
+        const dragMove = (e) => {
+            if (!isDragging) return;
+            const touch = e.touches && e.touches.length > 0 ? e.touches[0] : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0] : null);
+            const clientX = touch ? touch.clientX : e.clientX;
+            const clientY = touch ? touch.clientY : e.clientY;
+            
+            const rect = targetWorkspace.getBoundingClientRect();
+            let pctX = ((clientX - rect.left) / rect.width) * 100;
+            let pctY = ((clientY - rect.top) / rect.height) * 100;
+
+            pctX = Math.max(1, Math.min(pctX, 88));
+            pctY = Math.max(1, Math.min(pctY, 92));
+
+            marker.style.left = `${pctX}%`;
+            marker.style.top = `${pctY}%`;
+            
+            if (marker.twin) {
+                marker.twin.style.left = `${pctX}%`;
+                marker.twin.style.top = `${pctY}%`;
+            }
+
+            if (e.cancelable) e.preventDefault();
+        };
+
+        const dragEnd = () => {
+            isDragging = false;
+        };
+
+        marker.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+
+        marker.addEventListener('touchstart', dragStart, { passive: false });
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('touchend', dragEnd);
+
+        targetWorkspace.appendChild(marker);
+        return marker;
+    }
+
+    function createMarker(x, y, emoji, note) {
+        const desktopMarker = createSingleMarker(x, y, emoji, note, false);
+        const mobileMarker = createSingleMarker(x, y, emoji, note, true);
+        if (desktopMarker && mobileMarker) {
+            desktopMarker.twin = mobileMarker;
+            mobileMarker.twin = desktopMarker;
+        }
+    }
+    window.createMarker = createMarker;
+
+    // Recon Drawing Canvas Logic
+    const reconCanvas = document.getElementById('recon-canvas');
+    const mobileReconCanvas = document.getElementById('mobile-recon-canvas');
+    const mobileReconBgImage = document.getElementById('mobile-recon-bg-image');
+    const mobileReconDefaultGrid = document.getElementById('mobile-recon-default-grid');
+
+    if (reconCanvas) {
+        const rCtx = reconCanvas.getContext('2d');
+        const mCtx = mobileReconCanvas ? mobileReconCanvas.getContext('2d') : null;
+        let rDrawing = false;
+        const reconPencilToggle = document.getElementById('recon-pencil-toggle');
+
+        const getReconPos = (e, canvasEl) => {
+            const rect = canvasEl.getBoundingClientRect();
+            const touch = e.touches && e.touches.length > 0 ? e.touches[0] : (e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches[0] : null);
+            const clientX = touch ? touch.clientX : e.clientX;
+            const clientY = touch ? touch.clientY : e.clientY;
+            return {
+                x: ((clientX - rect.left) / rect.width) * canvasEl.width,
+                y: ((clientY - rect.top) / rect.height) * canvasEl.height
+            };
+        };
+
+        const startRDraw = (e) => {
+            if (!reconPencilToggle || !reconPencilToggle.checked) return;
+            if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+            rDrawing = true;
+            
+            const pos = getReconPos(e, e.currentTarget);
+            rCtx.beginPath();
+            rCtx.lineWidth = 1.0;
+            rCtx.lineCap = 'round';
+            rCtx.strokeStyle = '#ef4444';
+            rCtx.moveTo(pos.x, pos.y);
+
+            if (mCtx) {
+                mCtx.beginPath();
+                mCtx.lineWidth = 1.0;
+                mCtx.lineCap = 'round';
+                mCtx.strokeStyle = '#ef4444';
+                mCtx.moveTo(pos.x, pos.y);
+            }
+        };
+
+        const moveRDraw = (e) => {
+            if (!rDrawing) return;
+            if (e.type === 'touchmove' && e.cancelable) e.preventDefault();
+            
+            const pos = getReconPos(e, e.currentTarget);
+            rCtx.lineTo(pos.x, pos.y);
+            rCtx.stroke();
+
+            if (mCtx) {
+                mCtx.lineTo(pos.x, pos.y);
+                mCtx.stroke();
+            }
+        };
+
+        const stopRDraw = () => {
+            if (!rDrawing) return;
+            rCtx.closePath();
+            if (mCtx) mCtx.closePath();
+            rDrawing = false;
+        };
+
+        reconCanvas.addEventListener('mousedown', startRDraw);
+        reconCanvas.addEventListener('mousemove', moveRDraw);
+        reconCanvas.addEventListener('mouseup', stopRDraw);
+        reconCanvas.addEventListener('touchstart', startRDraw, { passive: false });
+        reconCanvas.addEventListener('touchmove', moveRDraw, { passive: false });
+        reconCanvas.addEventListener('touchend', stopRDraw);
+
+        if (mobileReconCanvas) {
+            mobileReconCanvas.addEventListener('mousedown', startRDraw);
+            mobileReconCanvas.addEventListener('mousemove', moveRDraw);
+            mobileReconCanvas.addEventListener('mouseup', stopRDraw);
+            mobileReconCanvas.addEventListener('touchstart', startRDraw, { passive: false });
+            mobileReconCanvas.addEventListener('touchmove', moveRDraw, { passive: false });
+            mobileReconCanvas.addEventListener('touchend', stopRDraw);
+        }
+
+        if (reconPencilToggle) {
+            reconPencilToggle.addEventListener('change', () => {
+                const label = reconPencilToggle.parentElement;
+                if (reconPencilToggle.checked) {
+                    label.classList.add('bg-emerald-950/40', 'border-emerald-500', 'text-emerald-400', 'shadow-lg', 'shadow-emerald-500/20');
+                    label.querySelector('span').textContent = '🖊️ DRAWING ACTIVE';
+                    reconCanvas.classList.remove('pointer-events-none');
+                    if (mobileReconCanvas) mobileReconCanvas.classList.remove('pointer-events-none');
+                } else {
+                    label.classList.remove('bg-emerald-950/40', 'border-emerald-500', 'text-emerald-400', 'shadow-lg', 'shadow-emerald-500/20');
+                    label.querySelector('span').textContent = '🖊️ DRAW PATH';
+                    reconCanvas.classList.add('pointer-events-none');
+                    if (mobileReconCanvas) mobileReconCanvas.classList.add('pointer-events-none');
+                }
+            });
+        }
+
+        document.getElementById('clear-recon-drawings').addEventListener('click', () => {
+            if (confirm('Clear drawings and markers?')) {
+                rCtx.clearRect(0, 0, reconCanvas.width, reconCanvas.height);
+                if (mCtx) mCtx.clearRect(0, 0, mobileReconCanvas.width, mobileReconCanvas.height);
+                
+                document.querySelectorAll('.recon-marker').forEach(m => m.remove());
+                
+                reconBgImage.classList.add('hidden');
+                reconBgImage.src = '';
+                if (mobileReconBgImage) {
+                    mobileReconBgImage.classList.add('hidden');
+                    mobileReconBgImage.src = '';
+                }
+                
+                if (reconDefaultGrid) reconDefaultGrid.classList.remove('hidden');
+                if (mobileReconDefaultGrid) mobileReconDefaultGrid.classList.remove('hidden');
+            }
+        });
+
+        const clearReconPencilBtn = document.getElementById('clear-recon-pencil');
+        if (clearReconPencilBtn) {
+            clearReconPencilBtn.addEventListener('click', () => {
+                if (confirm('Clear pencil drawings only?')) {
+                    rCtx.clearRect(0, 0, reconCanvas.width, reconCanvas.height);
+                    if (mCtx) mCtx.clearRect(0, 0, mobileReconCanvas.width, mobileReconCanvas.height);
+                }
+            });
+        }
+    }
+
+    // Save and Load from library using our robust IndexedDB
+    const saveReconMapBtn = document.getElementById('saveReconMapBtn');
+    const openReconLibraryBtn = document.getElementById('openReconLibraryBtn');
+
+    if (saveReconMapBtn) {
+        saveReconMapBtn.addEventListener('click', async () => {
+            const name = reconScenarioName.value.trim();
+            if (!name) {
+                alert('Please set a Scenario Name first.');
+                return;
+            }
+
+            // Friendly loading indicator
+            saveReconMapBtn.disabled = true;
+            const originalHTML = saveReconMapBtn.innerHTML;
+            saveReconMapBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> GENERATING PREVIEW...';
+            if (window.lucide) window.lucide.createIcons();
+
+            const container = document.getElementById('recon-card-container');
+            const previewPanel = document.getElementById('previewPanel');
+            const isVisuallyHidden = previewPanel.classList.contains('opacity-0');
+
+            // Force visual activation for html2canvas
+            if (isVisuallyHidden) {
+                previewPanel.classList.remove('opacity-0', 'pointer-events-none', 'absolute');
+                previewPanel.classList.add('flex');
+            }
+
+            const originalTransform = container.style.transform;
+            container.style.transform = 'none';
+            const originalScrollY = window.scrollY;
+            window.scrollTo(0, 0);
+
+            const originalTransition = previewPanel.style.transition;
+            previewPanel.style.transition = 'none';
+            document.body.classList.add('is-capturing');
+
+            setTimeout(() => {
+                html2canvas(container, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    logging: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 1000,
+                    windowHeight: 750
+                }).then(canvas => {
+                    document.body.classList.remove('is-capturing');
+                    previewPanel.style.transition = originalTransition;
+
+                    if (isVisuallyHidden) {
+                        previewPanel.classList.add('opacity-0', 'pointer-events-none', 'absolute');
+                        previewPanel.classList.remove('flex');
+                    }
+                    container.style.transform = originalTransform;
+                    window.scrollTo(0, originalScrollY);
+
+                    const snapshotUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+                    const markers = [];
+                    document.querySelectorAll('.recon-marker:not(.mobile-recon-marker)').forEach(m => {
+                        markers.push({
+                            x: parseFloat(m.style.left),
+                            y: parseFloat(m.style.top),
+                            emoji: m.dataset.emoji,
+                            note: m.dataset.note
+                        });
+                    });
+
+                    const drawingUrl = reconCanvas.toDataURL();
+
+                    const reconData = {
+                        id: 'recon-' + name.toLowerCase().replace(/\s+/g, '-'),
+                        name: name,
+                        isReconScenario: true,
+                        snapshot: snapshotUrl,
+                        bgImage: reconBgImage.classList.contains('hidden') ? '' : reconBgImage.src,
+                        report: reconReport.value,
+                        markers: markers,
+                        drawing: drawingUrl,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    const ps = getProfiles();
+                    ps[name] = reconData;
+
+                    const postSave = () => {
+                        saveReconMapBtn.disabled = false;
+                        saveReconMapBtn.innerHTML = originalHTML;
+                        if (window.lucide) window.lucide.createIcons();
+
+                        currentLibraryFilter = 'recon';
+                        window.openLibrary();
+                        if (window.previewProfile) window.previewProfile(name);
+                    };
+
+                    if (window.TRC_IDB) {
+                        window.TRC_IDB.set('rangeCardProfiles', name, reconData).then(() => {
+                            postSave();
+                        }).catch(err => {
+                            console.error("IDB save failed, falling back to localStorage:", err);
+                            localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
+                            postSave();
+                        });
+                    } else {
+                        localStorage.setItem('rangeCardProfiles', JSON.stringify(ps));
+                        postSave();
+                    }
+
+                }).catch(err => {
+                    document.body.classList.remove('is-capturing');
+                    previewPanel.style.transition = originalTransition;
+                    if (isVisuallyHidden) {
+                        previewPanel.classList.add('opacity-0', 'pointer-events-none', 'absolute');
+                        previewPanel.classList.remove('flex');
+                    }
+                    container.style.transform = originalTransform;
+                    window.scrollTo(0, originalScrollY);
+
+                    saveReconMapBtn.disabled = false;
+                    saveReconMapBtn.innerHTML = originalHTML;
+                    if (window.lucide) window.lucide.createIcons();
+
+                    console.error("Recon capture failure:", err);
+                    alert("Recon save failed. Please check log.");
+                });
+            }, 500);
+        });
+    }
+
+    if (openReconLibraryBtn) {
+        openReconLibraryBtn.addEventListener('click', () => {
+            currentLibraryFilter = 'recon';
+            window.openLibrary();
+        });
     }
 
     // Force initial sync
