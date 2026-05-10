@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.loadedProfilesCache = {};
-    let currentLibraryFilter = 'all';
+    window.currentLibraryFilter = 'all';
 
     window.getProfiles = function() { return window.loadedProfilesCache || {}; };
 
@@ -342,9 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (libraryList) libraryList.innerHTML = '';
 
         let names = Object.keys(ps).sort().reverse();
-        if (currentLibraryFilter === 'zero') {
+        if (window.currentLibraryFilter === 'zero') {
             names = names.filter(name => !ps[name].isReconScenario);
-        } else if (currentLibraryFilter === 'recon') {
+        } else if (window.currentLibraryFilter === 'recon') {
             names = names.filter(name => !!ps[name].isReconScenario);
         }
         names.forEach((name, index) => {
@@ -388,8 +388,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('profilePreview').classList.remove('hidden');
         document.getElementById('previewName').textContent = name;
-        document.getElementById('previewCaliber').textContent = `${data.caliber || '---'} • ${data.bullet || '---'}`;
-        document.getElementById('prevDate').textContent = data.date || '--';
+        
+        if (data.isReconScenario) {
+            document.getElementById('previewCaliber').textContent = `🗺️ RECON SCENARIO SITREP`;
+            document.getElementById('prevDate').textContent = data.timestamp ? new Date(data.timestamp).toLocaleDateString() : '--';
+        } else {
+            document.getElementById('previewCaliber').textContent = `${data.caliber || '---'} • ${data.bullet || '---'}`;
+            document.getElementById('prevDate').textContent = data.date || '--';
+        }
 
         // Populate Snapshot
         const img = document.getElementById('prevImage');
@@ -630,13 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         libraryModal.classList.remove('hidden');
         const modalTitle = document.getElementById('libraryModalTitle');
         if (modalTitle) {
-            if (currentLibraryFilter === 'zero') {
-                modalTitle.textContent = 'ZERO-CARD REPOSITORY';
-            } else if (currentLibraryFilter === 'recon') {
-                modalTitle.textContent = 'RECON SITREP REPOSITORY';
-            } else {
-                modalTitle.textContent = 'REPOSITORY';
-            }
+            modalTitle.textContent = 'TACTICAL DATA REPOSITORY';
         }
         window.updateProfileList();
         resetPreview();
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeLibrary = function() { libraryModal.classList.add('hidden'); };
 
     openLibraryBtn.onclick = () => {
-        currentLibraryFilter = 'zero';
+        window.currentLibraryFilter = 'all';
         window.openLibrary();
     };
     closeLibraryBtn.onclick = window.closeLibrary;
@@ -1376,7 +1376,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function refreshProfileNames() {
         if (!window.getProfiles) return;
         const ps = window.getProfiles();
-        profileNames = Object.keys(ps).sort().reverse();
+        // Align carousel perfectly with the displayed/filtered list logic
+        let names = Object.keys(ps).sort().reverse();
+        if (window.currentLibraryFilter === 'zero') {
+            names = names.filter(n => !ps[n].isReconScenario);
+        } else if (window.currentLibraryFilter === 'recon') {
+            names = names.filter(n => !!ps[n].isReconScenario);
+        }
+        profileNames = names;
     }
 
     // Hook into the original update logic
@@ -2126,7 +2133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         saveReconMapBtn.innerHTML = originalHTML;
                         if (window.lucide) window.lucide.createIcons();
 
-                        currentLibraryFilter = 'recon';
+                        window.currentLibraryFilter = 'all';
                         window.openLibrary();
                         if (window.previewProfile) window.previewProfile(name);
                     };
@@ -2167,7 +2174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (openReconLibraryBtn) {
         openReconLibraryBtn.addEventListener('click', () => {
-            currentLibraryFilter = 'recon';
+            window.currentLibraryFilter = 'all';
             window.openLibrary();
         });
     }
