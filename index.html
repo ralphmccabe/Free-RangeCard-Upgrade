@@ -781,11 +781,11 @@
         <div id="noImageMsg"></div>
     </div>
 
-    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.5"></script>
+    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.6"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=4.5').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=4.6').then(reg => {
                     reg.onupdatefound = () => {
                         const i = reg.installing;
                         i.onstatechange = () => { if (i.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); };
