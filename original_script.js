@@ -2272,6 +2272,133 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =================================================================
+    // === TACTICAL DUAL-VIEW HUD CONTROLLER ===
+    // =================================================================
+    const dualHudView = document.getElementById('dualHudView');
+    const launchDualHudBtn = document.getElementById('launchDualHudBtn');
+    const closeHudBtn = document.getElementById('closeHudBtn');
+    
+    const hudSelectCardBtn = document.getElementById('hudSelectCardBtn');
+    const hudSelectMapBtn = document.getElementById('hudSelectMapBtn');
+    const hudCardImg = document.getElementById('hudCardImg');
+    const hudMapImg = document.getElementById('hudMapImg');
+    const hudCardEmpty = document.getElementById('hudCardEmpty');
+    const hudMapEmpty = document.getElementById('hudMapEmpty');
+    
+    const hudAssetSelectorOverlay = document.getElementById('hudAssetSelectorOverlay');
+    const hudSelectorTitle = document.getElementById('hudSelectorTitle');
+    const hudSelectorList = document.getElementById('hudSelectorList');
+    const closeHudSelectorBtn = document.getElementById('closeHudSelectorBtn');
+
+    let currentHudTarget = 'card'; // 'card' or 'map'
+
+    // --- HUD Control & Open/Close ---
+    if (launchDualHudBtn && dualHudView) {
+        launchDualHudBtn.addEventListener('click', () => {
+            dualHudView.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Lock main scroll
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
+    if (closeHudBtn) {
+        closeHudBtn.addEventListener('click', () => {
+            dualHudView.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scroll
+        });
+    }
+
+    // --- Loader Logic ---
+    function openHudAssetSelector(type) {
+        currentHudTarget = type;
+        hudSelectorTitle.textContent = type === 'card' ? 'SELECT RANGE CARD' : 'SELECT RECON MAP';
+        hudSelectorList.innerHTML = '';
+
+        const profiles = (typeof getProfiles === 'function') ? getProfiles() : {};
+        let names = Object.keys(profiles).sort().reverse();
+
+        // Filter by type
+        if (type === 'card') {
+            names = names.filter(n => !profiles[n].isReconScenario);
+        } else {
+            names = names.filter(n => !!profiles[n].isReconScenario);
+        }
+
+        if (names.length === 0) {
+            hudSelectorList.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs font-mono uppercase tracking-widest">No saved ${type}s found</div>`;
+        } else {
+            names.forEach(name => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-gray-900 hover:bg-orange-900/20 border border-gray-800 hover:border-orange-500/50 rounded cursor-pointer flex items-center justify-between transition-all group";
+                
+                const meta = profiles[name].isReconScenario 
+                    ? `RECON • ${profiles[name].timestamp ? new Date(profiles[name].timestamp).toLocaleDateString() : 'Date Unknown'}` 
+                    : `${profiles[name].caliber || 'NO CALIBER'} • ${profiles[name].date || '--'}`;
+
+                row.innerHTML = `
+                    <div class="min-w-0">
+                        <div class="font-bold text-[11px] text-white truncate uppercase group-hover:text-orange-400">${name}</div>
+                        <div class="text-[9px] text-gray-500 font-mono uppercase mt-0.5">${meta}</div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-600 group-hover:text-orange-400"></i>
+                `;
+
+                row.addEventListener('click', () => {
+                    loadAssetIntoHud(profiles[name].snapshot);
+                });
+                
+                hudSelectorList.appendChild(row);
+            });
+        }
+
+        hudAssetSelectorOverlay.classList.remove('hidden');
+        hudAssetSelectorOverlay.classList.add('flex');
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function loadAssetIntoHud(imgData) {
+        if (!imgData) {
+            alert("Error: No visual image snapshot found for this record.");
+            return;
+        }
+        if (currentHudTarget === 'card') {
+            hudCardImg.src = imgData;
+            hudCardImg.classList.remove('hidden');
+            hudCardEmpty.classList.add('hidden');
+        } else {
+            hudMapImg.src = imgData;
+            hudMapImg.classList.remove('hidden');
+            hudMapEmpty.classList.add('hidden');
+        }
+        // Close Selector
+        hudAssetSelectorOverlay.classList.add('hidden');
+        hudAssetSelectorOverlay.classList.remove('flex');
+    }
+
+    // --- Event Links ---
+    if (hudSelectCardBtn) {
+        hudSelectCardBtn.addEventListener('click', () => openHudAssetSelector('card'));
+    }
+    if (hudSelectMapBtn) {
+        hudSelectMapBtn.addEventListener('click', () => openHudAssetSelector('map'));
+    }
+    if (closeHudSelectorBtn) {
+        closeHudSelectorBtn.addEventListener('click', () => {
+            hudAssetSelectorOverlay.classList.add('hidden');
+            hudAssetSelectorOverlay.classList.remove('flex');
+        });
+    }
+    // Close overlay on backdrop click
+    if (hudAssetSelectorOverlay) {
+        hudAssetSelectorOverlay.addEventListener('click', (e) => {
+            if (e.target === hudAssetSelectorOverlay) {
+                hudAssetSelectorOverlay.classList.add('hidden');
+                hudAssetSelectorOverlay.classList.remove('flex');
+            }
+        });
+    }
+
     // Force initial sync
     if (window.updateProfileList) window.updateProfileList();
 });
