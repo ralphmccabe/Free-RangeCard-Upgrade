@@ -1,10 +1,10 @@
-/* TRC-FREE-VERSION - v4.5-STABLE */
-const CACHE_NAME = 'trc-free-v4.6';
+/* TRC-FREE-VERSION - v4.7-STABLE */
+const CACHE_NAME = 'trc-free-v4.7';
 const ASSETS = [
     './',
-    './index.html?v=4.6',
+    './index.html?v=4.7',
     './style.css?v=1.5',
-    './original_script.js?v=4.6',
+    './original_script.js?v=4.7',
     './manifest.json',
     './icon-512.png',
     './icon-192.png',

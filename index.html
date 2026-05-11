@@ -145,6 +145,7 @@
                         <div class="col-span-1"><input type="text" id="weather" class="input-field" placeholder="Environment" maxlength="25"></div>
                         <div class="col-span-1"><input type="text" id="targetSize" class="input-field" placeholder="Target Size" maxlength="25"></div>
                         <div class="col-span-1"><input type="text" id="groupSize" class="input-field" placeholder="Group Size" maxlength="25"></div>
+                        <div class="col-span-2"><input type="text" id="box-count-input" class="input-field text-neon-green border-neon-green/40 font-bold tracking-wide" placeholder="BOX COUNT (RDS)" maxlength="25"></div>
                     </div>
 
                     <h2 class="section-label">Solution & Equipment</h2>
@@ -279,6 +280,18 @@
                             <button id="clear-grade" aria-label="Clear grade drawings" class="p-1 text-red-500 hover:text-red-400 transition-colors">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TACTICAL STOPWATCH -->
+                <section class="bg-gray-900 border border-gray-800 rounded p-4 space-y-3 mb-4">
+                    <h2 class="section-label flex items-center gap-2"><i data-lucide="timer" class="w-3 h-3 text-neon-green"></i> Tactical Timer</h2>
+                    <div class="bg-black/50 border border-gray-800 rounded p-3 flex items-center justify-between gap-4">
+                        <div id="stopwatch-display" class="text-2xl font-mono font-bold tracking-widest text-neon-green bg-black px-3 py-1 rounded border border-gray-900 shadow-inner flex-1 text-center">00:00:00<span class="text-xs text-neon-green/50">.0</span></div>
+                        <div class="flex gap-1.5">
+                            <button id="stopwatch-start" class="bg-emerald-950/40 border border-emerald-800 text-emerald-400 p-2 rounded hover:bg-emerald-900/60 hover:border-emerald-600 transition-colors" title="Start/Pause"><i data-lucide="play" class="w-4 h-4"></i></button>
+                            <button id="stopwatch-reset" class="bg-red-950/40 border border-red-900 text-red-500 p-2 rounded hover:bg-red-900/60 transition-colors" title="Reset"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </section>
@@ -434,7 +447,8 @@
                             <div>G-1 BC<span id="mobile-display-g1" class="text-blue-800 block font-normal"></span></div>
                             <div class="col-span-2">Env<span id="mobile-display-weather" class="text-blue-800 block font-normal"></span></div>
                             <div>Rings<span id="mobile-display-rings" class="text-blue-800 block font-normal"></span></div>
-                            <div class="col-span-3">Group<span id="mobile-display-groupSize" class="text-blue-800 block font-normal"></span></div>
+                            <div class="col-span-2">Group<span id="mobile-display-groupSize" class="text-blue-800 block font-normal"></span></div>
+                            <div class="border border-neon-green/30 bg-neon-green/5 px-1 rounded-sm">BOX RDS<span id="mobile-display-box-count-input" class="text-green-900 block font-black text-center"></span></div>
                         </div>
                     </div>
                     <div class="bg-white text-black p-4 rounded shadow-lg border border-black text-[10px] font-bold">
@@ -512,7 +526,8 @@
                             <div class="flex flex-col"><span class="text-[8px] text-gray-600">G-1 BC</span><span id="display-g1" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col col-span-2"><span class="text-[8px] text-gray-600">Environment</span><span id="display-weather" class="text-blue-800 font-normal"></span></div>
                             <div class="flex flex-col"><span class="text-[8px] text-gray-600">Rings</span><span id="display-rings" class="text-blue-800 font-normal"></span></div>
-                            <div class="flex flex-col col-span-3"><span class="text-[8px] text-gray-600">Group</span><span id="display-groupSize" class="text-blue-800 font-normal"></span></div>
+                            <div class="flex flex-col col-span-2"><span class="text-[8px] text-gray-600">Group</span><span id="display-groupSize" class="text-blue-800 font-normal"></span></div>
+                            <div class="flex flex-col border border-neon-green/30 bg-neon-green/5 px-1 rounded-sm justify-center"><span class="text-[8px] font-black text-green-800">BOX RDS</span><span id="display-box-count-input" class="text-green-900 font-black text-center text-[12px]"></span></div>
                             <div class="col-span-3 mt-2 grid grid-cols-2 gap-4 bg-gray-50 p-2 border border-black rounded-sm">
                                 <div class="flex justify-between text-black"><span>ELEV:</span> <span id="display-elevation" class="text-blue-800 font-bold"></span></div>
                                 <div class="flex justify-between text-black"><span>HOLD:</span> <span id="display-hold-data" class="text-blue-800 font-bold"></span></div>
@@ -781,11 +796,11 @@
         <div id="noImageMsg"></div>
     </div>
 
-    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.6"></script>
+    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.7"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=4.6').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=4.7').then(reg => {
                     reg.onupdatefound = () => {
                         const i = reg.installing;
                         i.onstatechange = () => { if (i.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); };

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'header-notes', 'shooter-name', 'date', 'time', 'caliber', 'zero', 'barrel', 'bullet', 'load', 'powder',
         'primer', 'col', 'rings', 'velocity', 'g1', 'weather', 'targetSize', 'groupSize', 'elevation', 'hold-data', 'final-dope',
         'rifle-notes', 'wind-notes', 'scope-notes', 'shooting-angle', 'direction-notes', 'lrf-notes', 'compass-range',
-        'compass-range-2'
+        'compass-range-2', 'box-count-input'
     ];
 
     // Generate Distance Table Rows and collect their Input IDs
@@ -308,6 +308,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Clear Compass lines (manually trigger redraw)
                 if (window.drawCompassVector) window.drawCompassVector();
+
+                // === EXTENDED CLEAR: RECON MAPPER ===
+                // Clear Inputs & trigger displays
+                const recName = document.getElementById('recon-scenario-name');
+                const recRep = document.getElementById('recon-report');
+                if (recName) { recName.value = ''; recName.dispatchEvent(new Event('input')); }
+                if (recRep) { recRep.value = ''; recRep.dispatchEvent(new Event('input')); }
+
+                // Remove map markers
+                document.querySelectorAll('.recon-marker').forEach(m => m.remove());
+
+                // Clear drawing canvases
+                ['clear-recon-drawings', 'clear-recon-pencil'].forEach(id => {
+                    const b = document.getElementById(id);
+                    if (b) b.click();
+                });
+
+                // Reset Map background to default grid
+                const recBg = document.getElementById('recon-bg-image');
+                const recGrid = document.getElementById('recon-default-grid');
+                const mobBg = document.getElementById('mobile-recon-bg-image');
+                const mobGrid = document.getElementById('mobile-recon-default-grid');
+                const recUpload = document.getElementById('map-bg-upload');
+
+                if (recBg) { recBg.src = ''; recBg.classList.add('hidden'); }
+                if (recGrid) recGrid.classList.remove('hidden');
+                if (mobBg) { mobBg.src = ''; mobBg.classList.add('hidden'); }
+                if (mobGrid) mobGrid.classList.remove('hidden');
+                if (recUpload) recUpload.value = '';
 
                 alert("Tactical data cleared.");
             }
@@ -727,7 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ps[name] = data;
                 
                 const postSave = () => {
-                    currentLibraryFilter = 'zero';
+                    window.currentLibraryFilter = 'all';
                     window.openLibrary();
                     window.previewProfile(name);
                 };
@@ -1400,13 +1429,6 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshProfileNames(); 
         currentProfileIndex = profileNames.indexOf(name);
         
-        // Mobile UX: Shrink list to make card huge when viewing
-        const listContainer = document.querySelector('#libraryModal .lg\\:w-80');
-        if (window.innerWidth < 1024 && listContainer) {
-            listContainer.style.maxHeight = '65px';
-            listContainer.style.overflow = 'hidden';
-            listContainer.classList.add('opacity-50');
-        }
         updateGalleryStats();
     };
 
@@ -1528,9 +1550,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mt-4 pt-3 border-t border-gray-800 flex items-center justify-between gap-4">
                     <!-- Adjustment Counter -->
                     <div class="flex items-center gap-1.5 bg-black/40 p-1 rounded border border-gray-800">
-                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="-5">-5</button>
+                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="-1">-1</button>
                         <span class="text-white font-black text-xs px-2 min-w-[32px] text-center">${p.count || '0'} rds</span>
-                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="5">+5</button>
+                        <button class="adjust-ammo-btn bg-gray-800 text-white font-bold text-xs w-6 h-6 rounded flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 transition-colors" data-name="${key}" data-amount="1">+1</button>
                     </div>
                     
                     <button class="load-ammo-btn bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-[10px] uppercase font-bold py-1.5 px-3 rounded hover:bg-emerald-600/40 transition-colors" data-name="${key}">
@@ -1583,9 +1605,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (p.primer) document.getElementById('primer').value = p.primer;
                     if (p.col) document.getElementById('col').value = p.col;
                     if (p.velocity) document.getElementById('velocity').value = p.velocity;
+                    if (p.count) document.getElementById('box-count-input').value = p.count;
 
                     // Manually trigger input events to sync display card
-                    ['caliber', 'bullet', 'powder', 'primer', 'col', 'velocity'].forEach(id => {
+                    ['caliber', 'bullet', 'powder', 'primer', 'col', 'velocity', 'box-count-input'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.dispatchEvent(new Event('input'));
                     });
@@ -1688,6 +1711,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 reconSidebarView.classList.remove('hidden');
                 normalCardContainer.classList.add('hidden');
                 reconCardContainer.classList.remove('hidden');
+                
+                // Prevent accidentally clicking the standard save button while in Recon View
+                const stdSave = document.getElementById('saveProfileBtnManual');
+                if (stdSave) stdSave.classList.add('hidden');
             } else {
                 toggleReconMapperBtn.innerHTML = '<i data-lucide="map" class="w-4 h-4"></i> TACTICAL RECON MAPPER';
                 toggleReconMapperBtn.classList.replace('bg-emerald-950/40', 'bg-indigo-950/40');
@@ -1698,6 +1725,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 reconSidebarView.classList.add('hidden');
                 normalCardContainer.classList.remove('hidden');
                 reconCardContainer.classList.add('hidden');
+
+                const stdSave = document.getElementById('saveProfileBtnManual');
+                if (stdSave) stdSave.classList.remove('hidden');
             }
             syncReconPortal();
             if (window.lucide) window.lucide.createIcons();
@@ -2176,6 +2206,69 @@ document.addEventListener('DOMContentLoaded', () => {
         openReconLibraryBtn.addEventListener('click', () => {
             window.currentLibraryFilter = 'all';
             window.openLibrary();
+        });
+    }
+
+    // === TACTICAL STOPWATCH CONTROLLER ===
+    let timerInterval = null;
+    let timerMilliseconds = 0;
+    let isTimerRunning = false;
+
+    const timerDisplay = document.getElementById('stopwatch-display');
+    const timerStartBtn = document.getElementById('stopwatch-start');
+    const timerResetBtn = document.getElementById('stopwatch-reset');
+
+    function updateTimerDisplay() {
+        if (!timerDisplay) return;
+        let totalSeconds = Math.floor(timerMilliseconds / 1000);
+        let mins = Math.floor(totalSeconds / 60);
+        let secs = totalSeconds % 60;
+        let tenths = Math.floor((timerMilliseconds % 1000) / 100);
+
+        let displayMins = mins.toString().padStart(2, '0');
+        let displaySecs = secs.toString().padStart(2, '0');
+        
+        timerDisplay.innerHTML = `${displayMins}:${displaySecs}<span class="text-xs text-neon-green/50">.${tenths}</span>`;
+    }
+
+    if (timerStartBtn) {
+        timerStartBtn.addEventListener('click', () => {
+            if (isTimerRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                timerStartBtn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i>';
+                timerStartBtn.classList.replace('bg-amber-950/40', 'bg-emerald-950/40');
+                timerStartBtn.classList.replace('text-amber-500', 'text-emerald-400');
+                timerStartBtn.classList.replace('border-amber-800', 'border-emerald-800');
+                isTimerRunning = false;
+            } else {
+                // Start
+                const startTime = Date.now() - timerMilliseconds;
+                timerInterval = setInterval(() => {
+                    timerMilliseconds = Date.now() - startTime;
+                    updateTimerDisplay();
+                }, 100);
+                timerStartBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i>';
+                timerStartBtn.classList.replace('bg-emerald-950/40', 'bg-amber-950/40');
+                timerStartBtn.classList.replace('text-emerald-400', 'text-amber-500');
+                timerStartBtn.classList.replace('border-emerald-800', 'border-amber-800');
+                isTimerRunning = true;
+            }
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
+    if (timerResetBtn) {
+        timerResetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerMilliseconds = 0;
+            updateTimerDisplay();
+            if (timerStartBtn) {
+                timerStartBtn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i>';
+                timerStartBtn.className = "bg-emerald-950/40 border border-emerald-800 text-emerald-400 p-2 rounded hover:bg-emerald-900/60 hover:border-emerald-600 transition-colors";
+            }
+            if (window.lucide) window.lucide.createIcons();
         });
     }
 
