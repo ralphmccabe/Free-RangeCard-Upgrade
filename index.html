@@ -629,7 +629,10 @@
                 <button id="closeLibraryBtn" aria-label="Close modal" class="p-2 bg-gray-800 rounded-lg group"><i data-lucide="x" class="w-6 h-6 text-white"></i></button>
             </div>
             <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                <div class="w-full lg:w-80 border-r border-gray-800 bg-black/20 flex flex-col"><div id="libraryList" class="flex-1 overflow-y-auto p-2"></div></div>
+                <!-- PREVENT COLLAPSE: Force list height on mobile to 160px, preventing it from stealing viewer space -->
+                <div class="w-full h-40 flex-shrink-0 border-b border-gray-800 lg:h-full lg:w-80 lg:border-b-0 lg:border-r bg-black/20 flex flex-col">
+                    <div id="libraryList" class="flex-1 overflow-y-auto p-2 custom-scrollbar"></div>
+                </div>
                 <div class="flex-1 flex flex-col bg-gray-950 relative">
                     <div id="noSelection" class="absolute inset-0 flex flex-col items-center justify-center text-center"><p class="text-gray-600 font-mono text-xs uppercase tracking-widest">Load record</p></div>
                     <div id="profilePreview" class="absolute inset-0 flex flex-col hidden z-10">
@@ -640,7 +643,7 @@
                             </div>
                             <div class="flex gap-4"><button id="viewImageBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Report</button><button id="viewDataBtn" class="px-4 py-1.5 text-[10px] font-bold uppercase rounded bg-gray-800 transition-all">Data</button></div>
                         </div>
-                        <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center p-4 relative group">
+                        <div id="snapshotPreview" class="flex-1 overflow-auto flex flex-col items-center justify-center p-4 relative group">
                             <!-- Swipe Navigation Overlay -->
                             <button id="prevProfileBtn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center border border-neon-green/30 shadow-lg z-20 active:bg-neon-green active:text-black hover:bg-neon-green/20 transition-all">
                                 <i data-lucide="chevron-left" class="w-8 h-8"></i>
@@ -796,11 +799,11 @@
         <div id="noImageMsg"></div>
     </div>
 
-    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.7"></script>
+    <script src="idb_helper.js?v=1.5"></script><script src="original_script.js?v=4.8"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=4.7').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=4.8').then(reg => {
                     reg.onupdatefound = () => {
                         const i = reg.installing;
                         i.onstatechange = () => { if (i.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); };
